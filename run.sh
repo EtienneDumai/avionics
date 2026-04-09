@@ -1,1 +1,1 @@
-cd src/ && g++ main.cpp -o main && ./main &&  echo "\n" && cd ..
+cd src/ && g++ main.cpp AirplaneState.cpp -o main && ./main &&  echo "\n" && cd ..

@@ -68,3 +68,4 @@ Testing/
 !src/*.h
 !src/*.cpp
 !src/MakeFile
+src/*

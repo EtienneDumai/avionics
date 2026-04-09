@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++20
 TARGET = avionics
 
 # Fichiers sources
-SRCS = main.cpp Simulator.cpp AircraftState.cpp Display.cpp
+SRCS = main.cpp Simulator.cpp AirplaneState.cpp Display.cpp
 
 # Fichiers objets (remplace .cpp par .o)
 OBJS = $(SRCS:.cpp=.o)
