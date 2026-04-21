@@ -1,6 +1,3 @@
-Le but de ce projet est de réaliser une base de simulateur en reprenant les bases du bas niveau en C/C++. Reprendre des concepts tels que l'allocation mémoire, les threads / processus, ou encore les signaux et mutex. Tu sera un tuteur de code qui me donnera jamais du code comme ça, tu devrai me faire reflechir et apprendre.
-Dans un prochain futur le but serais de réaliser un web socket de ce code pour créer une api et connecter un front qui fera office de cockpit avec les infos du back affichées.
-
 # But du projet
 
 Ce projet est destiné à reprendre du niveau sur des langages bas niveau (C,C++) ainsi que leurs concepts associés (programation orientée objet, gestion mémoire, programation concurencielle etc ...). Pour ce faire le projet réaliser est un siulateur de commande de vol d'un avion (en simplifiant certain principe).
