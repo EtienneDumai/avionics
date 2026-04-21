@@ -15,6 +15,7 @@ private:
 
 public:
     AirplaneState(int altitude, int xPos, int yPos, int airSpeed, int groundSpeed, double verticalSpeed, double AOA, double heading);
+    AirplaneState(AirplaneState *airplane);
     ~AirplaneState();
     int getAltitude();
     int getXPos();

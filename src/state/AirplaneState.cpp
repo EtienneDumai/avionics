@@ -1,10 +1,19 @@
 #include "AirplaneState.h"
-using namespace std;
 
 AirplaneState::AirplaneState(int altitude, int xPos, int yPos, int airSpeed, int groundSpeed, double verticalSpeed, double AOA, double heading) : _altitude(altitude), _xPos(xPos), _yPos(yPos), _airSpeed(airSpeed), _groundSpeed(groundSpeed), _verticalSpeed(verticalSpeed), _AOA(AOA), _heading(heading)
 {
 }
-
+AirplaneState::AirplaneState(AirplaneState *airplane)
+{
+    this->_airSpeed = airplane->getAirSpeed();
+    this->_altitude = airplane->getAltitude();
+    this->_AOA = airplane->getAOA();
+    this->_groundSpeed = airplane->getGroundSpeed();
+    this->_heading = airplane->getHeading();
+    this->_verticalSpeed = airplane->getVerticalSpeed();
+    this->_xPos = airplane->getXPos();
+    this->_yPos = airplane->getYPos();
+}
 AirplaneState::~AirplaneState()
 {
 }
