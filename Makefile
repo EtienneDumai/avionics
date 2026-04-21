@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++20
 TARGET = avionics
 
 # Fichiers sources
-SRCS = main.cpp Simulator.cpp AirplaneState.cpp Display.cpp
+SRCS = $(shell find src -type f -name "*.cpp")
 
 # Fichiers objets (remplace .cpp par .o)
 OBJS = $(SRCS:.cpp=.o)
@@ -24,3 +24,7 @@ $(TARGET): $(OBJS)
 # Nettoyage
 clean:
 	rm -f $(OBJS) $(TARGET)
+
+print: 
+	@echo "SRCS = $(SRCS)"
+	@echo "OBJS = $(OBJS)"

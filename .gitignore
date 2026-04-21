@@ -68,4 +68,7 @@ Testing/
 !src/*.h
 !src/*.cpp
 !src/MakeFile
-src/*
+!src/core/*.cpp
+!src/core/*.h
+src/main
+avionics
