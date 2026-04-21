@@ -12,6 +12,7 @@ private:
     double _verticalSpeed;
     double _AOA;
     double _heading;
+
 public:
     AirplaneState(int altitude, int xPos, int yPos, int airSpeed, int groundSpeed, double verticalSpeed, double AOA, double heading);
     ~AirplaneState();
@@ -28,4 +29,3 @@ public:
     void setYPos(int newYPos);
     void setGroundSpeed(int newGroundSpeed);
 };
-
