@@ -1,3 +1,5 @@
+#ifndef AIRPLANESTATE_H
+#define AIRPLANESTATE_H
 #include <iostream>
 using namespace std;
 
@@ -5,28 +7,29 @@ class AirplaneState
 {
 private:
     int _altitude;
-    int _xPos;
-    int _yPos;
-    int _airSpeed;
-    int _groundSpeed;
+    double _xPos;
+    double _yPos;
+    double _airSpeed;
+    double _groundSpeed;
     double _verticalSpeed;
     double _AOA;
     double _heading;
 
 public:
-    AirplaneState(int altitude, int xPos, int yPos, int airSpeed, int groundSpeed, double verticalSpeed, double AOA, double heading);
+    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading);
     AirplaneState(AirplaneState *airplane);
     ~AirplaneState();
     int getAltitude();
-    int getXPos();
-    int getYPos();
-    int getAirSpeed();
-    int getGroundSpeed();
+    double getXPos();
+    double getYPos();
+    double getAirSpeed();
+    double getGroundSpeed();
     double getVerticalSpeed();
     double getAOA();
     double getHeading();
     void setAltitude(int newAltitude);
-    void setXPos(int newXPos);
-    void setYPos(int newYPos);
-    void setGroundSpeed(int newGroundSpeed);
+    void setXPos(double newXPos);
+    void setYPos(double newYPos);
+    void setGroundSpeed(double newGroundSpeed);
 };
+#endif

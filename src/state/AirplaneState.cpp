@@ -1,6 +1,6 @@
 #include "AirplaneState.h"
 
-AirplaneState::AirplaneState(int altitude, int xPos, int yPos, int airSpeed, int groundSpeed, double verticalSpeed, double AOA, double heading) : _altitude(altitude), _xPos(xPos), _yPos(yPos), _airSpeed(airSpeed), _groundSpeed(groundSpeed), _verticalSpeed(verticalSpeed), _AOA(AOA), _heading(heading)
+AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading) : _altitude(altitude), _xPos(xPos), _yPos(yPos), _airSpeed(airSpeed), _groundSpeed(groundSpeed), _verticalSpeed(verticalSpeed), _AOA(AOA), _heading(heading)
 {
 }
 AirplaneState::AirplaneState(AirplaneState *airplane)
@@ -23,22 +23,22 @@ int AirplaneState::getAltitude()
     return this->_altitude;
 }
 
-int AirplaneState::getXPos()
+double AirplaneState::getXPos()
 {
     return this->_xPos;
 }
 
-int AirplaneState::getYPos()
+double AirplaneState::getYPos()
 {
     return this->_yPos;
 }
 
-int AirplaneState::getAirSpeed()
+double AirplaneState::getAirSpeed()
 {
     return this->_airSpeed;
 }
 
-int AirplaneState::getGroundSpeed()
+double AirplaneState::getGroundSpeed()
 {
     return this->_groundSpeed;
 }
@@ -63,17 +63,17 @@ void AirplaneState::setAltitude(int newAltitude)
     this->_altitude = newAltitude;
 }
 
-void AirplaneState::setXPos(int newXPos)
+void AirplaneState::setXPos(double newXPos)
 {
     this->_xPos = newXPos;
 }
 
-void AirplaneState::setYPos(int newYPos)
+void AirplaneState::setYPos(double newYPos)
 {
     this->_yPos = newYPos;
 }
 
-void AirplaneState::setGroundSpeed(int newGroundSpeed)
+void AirplaneState::setGroundSpeed(double newGroundSpeed)
 {
     this->_groundSpeed = newGroundSpeed;
 }
