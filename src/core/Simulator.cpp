@@ -20,6 +20,7 @@ void Simulator::simLoop()
         this->_airplane->setXPos(this->_airplane->getXPos()+sin(this->_airplane->getHeading()*M_PI/180)*this->_airplane->getGroundSpeed()*(this->_timeScale));
         this->_airplane->setAltitude(this->_airplane->getAltitude() + this->_airplane->getVerticalSpeed()*this->_timeScale);
         std::this_thread::sleep_for(std::chrono::milliseconds(this->getTickTime()));
+        std::cout << "position de l'avion : " << this->_airplane->getYPos() << "---" << this->_airplane->getYPos() << std::endl;
     }
 }
 void Simulator::startSim()

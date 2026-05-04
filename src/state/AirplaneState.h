@@ -1,7 +1,7 @@
 #ifndef AIRPLANESTATE_H
 #define AIRPLANESTATE_H
 #include <iostream>
-using namespace std;
+#include <mutex>
 
 class AirplaneState
 {
@@ -14,6 +14,7 @@ private:
     double _verticalSpeed;
     double _AOA;
     double _heading;
+    std::mutex mutexAirplaneState;
 
 public:
     AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading);

@@ -20,31 +20,37 @@ AirplaneState::~AirplaneState()
 
 int AirplaneState::getAltitude()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_altitude;
 }
 
 double AirplaneState::getXPos()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_xPos;
 }
 
 double AirplaneState::getYPos()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_yPos;
 }
 
 double AirplaneState::getAirSpeed()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_airSpeed;
 }
 
 double AirplaneState::getGroundSpeed()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_groundSpeed;
 }
 
 double AirplaneState::getVerticalSpeed()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_verticalSpeed;
 }
 
@@ -55,25 +61,30 @@ double AirplaneState::getAOA()
 
 double AirplaneState::getHeading()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_heading;
 }
 
 void AirplaneState::setAltitude(int newAltitude)
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_altitude = newAltitude;
 }
 
 void AirplaneState::setXPos(double newXPos)
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_xPos = newXPos;
 }
 
 void AirplaneState::setYPos(double newYPos)
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_yPos = newYPos;
 }
 
 void AirplaneState::setGroundSpeed(double newGroundSpeed)
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_groundSpeed = newGroundSpeed;
 }
