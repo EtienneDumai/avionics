@@ -2,18 +2,23 @@
 #define ENGINE_H
 #include <mutex>
 
-
 class Engine
 {
 private:
-    double  _spoolRate;
+    // Attributs
+    double _spoolRate;
     double _engineRPM;
     int _commandRPM;
-    int _maxThrust; //in N (Newton)
+    int _maxThrust; // in N (Newton)
     bool _state;
-    std::mutex mutexAirplaneState;
+    std::mutex _mutexEngine;
 
 public:
+    // Constructeurs
+    Engine(double newSpoolRate, double newEngineRPM, int newCommandThrust, int newMaxthrust, bool newState);
+    ~Engine();
+
+    // Encapsulation
     double getSpoolRate();
     double getEngineRPM();
     int getCommandRPM();
@@ -23,9 +28,9 @@ public:
     void setEngineRPM(double newEngineRPM);
     void setCommandRPM(int newCommandRPM);
     void setState(bool newState);
+
+    // Methodes
     int computeThrust(double engineRPM, int maxThrust, bool state);
-    Engine(double newSpoolRate, double newEngineRPM, int newCommandThrust, int newMaxthrust, bool newState);
-    ~Engine();
 };
 
 #endif
