@@ -1,6 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
-#include "core/Simulator.h"
+#include "../core/Simulator/Simulator.h"
 #include <atomic>
 class Display
 {

@@ -1,6 +1,6 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
-#include "../state/AirplaneState.h"
+#include "../../state/AirplaneState.h"
 #include <thread>
 #include <atomic>
 #include <chrono>
