@@ -1,7 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 #include <mutex>
-
+#include <algorithm>
 class Engine
 {
 private:
@@ -30,7 +30,8 @@ public:
     void setState(bool newState);
 
     // Methodes
-    int computeThrust(double engineRPM, int maxThrust, bool state);
+    int computeThrust();
+    int updateRPM();
 };
 
 #endif

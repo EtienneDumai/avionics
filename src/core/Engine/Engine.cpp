@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <algorithm>
 
 Engine::Engine(double newSpoolRate, double newEngineRPM, int newCommandThrust, int newMaxthrust, bool newState)
 {
@@ -67,24 +68,43 @@ void Engine::setState(bool newState)
     this->_state = newState;
 }
 
-int Engine::computeThrust(double engineRPM, int maxThrust, bool state)
+int Engine::computeThrust()
 {
     std::lock_guard<std::mutex> lock(this->_mutexEngine);
     int realThrust;
-    if (!state)
+    if (!this->_state)
     {
         realThrust = 0;
     }
     else
     {
-        if (engineRPM <= 100)
+        if (this->_engineRPM <= 100)
         {
-            realThrust = engineRPM * static_cast<double>(maxThrust);
+            realThrust = (this->_engineRPM / 100) * static_cast<double>(this->_maxThrust);
         }
         else
         {
-            realThrust = engineRPM * static_cast<double>(maxThrust) * 1.25;
+            realThrust = (this->_engineRPM / 100) * static_cast<double>(this->_maxThrust) * 1.25;
         }
     }
     return realThrust;
+}
+
+int Engine::updateRPM(){
+    if (!this->_state)
+    {
+        return 0;
+    }
+    else
+    {
+        if (this->_commandRPM < this->_engineRPM)
+        {
+            std::max(this->_engineRPM-this->_spoolRate, static_cast<double>(this->_commandRPM));
+        }
+        else if (this->_commandRPM > this->_engineRPM)
+        {
+            std::min(this->_engineRPM-this->_spoolRate, static_cast<double>(this->_commandRPM));
+        }
+    }
+    
 }
