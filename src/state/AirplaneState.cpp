@@ -2,7 +2,10 @@
 
 AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading, int engineCount, EngineConfig newEngineConfig) : _altitude(altitude), _xPos(xPos), _yPos(yPos), _airSpeed(airSpeed), _groundSpeed(groundSpeed), _verticalSpeed(verticalSpeed), _AOA(AOA), _heading(heading), _engineCount(engineCount)
 {
-    
+    for (int i = 0; i < engineCount; i++)
+    {
+        this->_engines.push_back(std::make_unique<Engine>(newEngineConfig.spoolRate, 0, 0, newEngineConfig.maxThrust, false));
+    }
 }
 AirplaneState::AirplaneState(AirplaneState *airplane)
 {
@@ -14,6 +17,10 @@ AirplaneState::AirplaneState(AirplaneState *airplane)
     this->_verticalSpeed = airplane->getVerticalSpeed();
     this->_xPos = airplane->getXPos();
     this->_yPos = airplane->getYPos();
+    for (const auto &e : airplane->_engines)
+    {
+        this->_engines.push_back(std::make_unique<Engine>(e->getSpoolRate(), e->getEngineRPM(), e->getCommandRPM(), e->getMaxThrust(), e->getState()));
+    }
 }
 AirplaneState::~AirplaneState()
 {
@@ -57,6 +64,7 @@ double AirplaneState::getVerticalSpeed()
 
 double AirplaneState::getAOA()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_AOA;
 }
 
