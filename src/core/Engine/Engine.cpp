@@ -90,21 +90,23 @@ int Engine::computeThrust()
     return realThrust;
 }
 
-int Engine::updateRPM(){
-    if (!this->_state)
-    {
-        return 0;
-    }
-    else
+void Engine::updateRPM()
+{
+
+    std::lock_guard<std::mutex> lock(this->_mutexEngine);
+    if (this->_state)
     {
         if (this->_commandRPM < this->_engineRPM)
         {
-            std::max(this->_engineRPM-this->_spoolRate, static_cast<double>(this->_commandRPM));
+            this->_engineRPM = std::max(this->_engineRPM - this->_spoolRate, static_cast<double>(this->_commandRPM));
         }
         else if (this->_commandRPM > this->_engineRPM)
         {
-            std::min(this->_engineRPM-this->_spoolRate, static_cast<double>(this->_commandRPM));
+            this->_engineRPM = std::min(this->_engineRPM + this->_spoolRate, static_cast<double>(this->_commandRPM));
+        }
+        else
+        {
+            this->_engineRPM = this->_commandRPM;
         }
     }
-    
 }

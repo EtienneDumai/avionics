@@ -2,7 +2,9 @@
 #define AIRPLANESTATE_H
 #include <iostream>
 #include <mutex>
-
+#include "../core/Engine/Engine.h"
+#include <vector>
+#include <memory>
 class AirplaneState
 {
 private:
@@ -14,10 +16,12 @@ private:
     double _verticalSpeed;
     double _AOA;
     double _heading;
+    int _engineCount;
+    std::vector<std::unique_ptr<Engine>> _engines;
     std::mutex mutexAirplaneState;
 
 public:
-    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading);
+    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading, int engineCount, EngineConfig newEngineConfig);
     AirplaneState(AirplaneState *airplane);
     ~AirplaneState();
     int getAltitude();

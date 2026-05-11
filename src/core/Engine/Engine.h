@@ -2,6 +2,12 @@
 #define ENGINE_H
 #include <mutex>
 #include <algorithm>
+struct EngineConfig
+{
+    double spoolRate;
+    int maxThrust;
+};
+
 class Engine
 {
 private:
@@ -31,7 +37,7 @@ public:
 
     // Methodes
     int computeThrust();
-    int updateRPM();
+    void updateRPM();
 };
 
 #endif
