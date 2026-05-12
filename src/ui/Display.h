@@ -1,15 +1,27 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
-#include "../core/Simulator/Simulator.h"
+#include "../state/AirplaneState.h"
 #include <atomic>
+#include <thread>
+#include <chrono>
 class Display
 {
 private:
-    Simulator *simulator;
-    std::atomic<bool> displayRunning;
+    // Variables
+    AirplaneState *_airplane;
+    std::atomic<bool> _displayRunning;
+    std::thread _displayThread;
+    static const int _tickTime;
+
+    // Méthodes
+    void displayLoop();
+
 public:
-    Display(/* args */);
+    // Constructeur
+    Display(AirplaneState *newAirplane);
     ~Display();
+    int getTickTime();
+    // Méthodes
     void startDisplay();
     void stopDisplay();
 };

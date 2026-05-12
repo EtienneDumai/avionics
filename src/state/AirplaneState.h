@@ -32,7 +32,6 @@ public:
     double getVerticalSpeed();
     double getAOA();
     double getHeading();
-    std::vector<std::unique_ptr<Engine>> getEngines();
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);

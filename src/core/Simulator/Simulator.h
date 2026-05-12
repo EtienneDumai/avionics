@@ -9,7 +9,6 @@ class Simulator
 {
 
 private:
-
     // Variables
     AirplaneState *_airplane;
     std::atomic<bool> _simRunning;
@@ -21,7 +20,6 @@ private:
     void simLoop();
 
 public:
-
     // Constructeur
     Simulator(AirplaneState *newAirplane);
     ~Simulator();
