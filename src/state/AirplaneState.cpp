@@ -74,6 +74,24 @@ double AirplaneState::getHeading()
     return this->_heading;
 }
 
+double AirplaneState::getEngineRPM(int index)
+{
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    if (this->_engines.empty() || static_cast<int>(this->_engines.size()) <= index || index < 0)
+    {
+        return -1.0;
+    }
+    else
+    {
+        return this->_engines.at(index)->getEngineRPM();
+    }
+}
+
+int AirplaneState::getEnginesCount()
+{
+    return this->_engineCount;
+}
+
 void AirplaneState::setAltitude(int newAltitude)
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);

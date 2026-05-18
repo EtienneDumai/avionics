@@ -11,6 +11,8 @@ int main()
     Display display(&airplane);
     simulator.startSim();
     display.startDisplay();
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    simulator.stopSim();
+    display.stopDisplay();
     return 0;
 }

@@ -32,6 +32,8 @@ public:
     double getVerticalSpeed();
     double getAOA();
     double getHeading();
+    double getEngineRPM(int index);
+    int getEnginesCount();
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);

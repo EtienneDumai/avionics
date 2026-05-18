@@ -26,13 +26,18 @@ void Display::displayLoop()
 {
     while (this->_displayRunning)
     {
+        std::cout << "Heading : " << this->_airplane->getHeading() << std::endl;
         std::cout << "xPos : " << this->_airplane->getXPos() << std::endl;
         std::cout << "yPos : " << this->_airplane->getYPos() << std::endl;
-        std::cout << "Heading : " << this->_airplane->getHeading() << std::endl;
         std::cout << "ASPD : " << this->_airplane->getAirSpeed() << std::endl;
         std::cout << "GSPD : " << this->_airplane->getGroundSpeed() << std::endl;
         std::cout << "AOA : " << this->_airplane->getAOA() << std::endl;
         std::cout << "ALT : " << this->_airplane->getAltitude() << std::endl;
+        for (int i = 0; i < this->_airplane->getEnginesCount(); i++)
+        {
+            std::cout << "ENG" << i + 1 << " : " << this->_airplane->getEngineRPM(i) << std::endl;
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(this->getTickTime()));
     }
 }
