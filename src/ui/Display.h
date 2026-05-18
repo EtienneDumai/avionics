@@ -4,6 +4,7 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
+#include <iostream>
 class Display
 {
 private:
