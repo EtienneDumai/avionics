@@ -26,6 +26,8 @@ void Display::displayLoop()
 {
     while (this->_displayRunning)
     {
+        //clear terminal
+        std::cout<<"\033[2J\033[H";
         std::cout << "Heading : " << this->_airplane->getHeading() << std::endl;
         std::cout << "xPos : " << this->_airplane->getXPos() << std::endl;
         std::cout << "yPos : " << this->_airplane->getYPos() << std::endl;

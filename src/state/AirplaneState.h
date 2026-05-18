@@ -5,6 +5,7 @@
 #include "../core/Engine/Engine.h"
 #include <vector>
 #include <memory>
+#include <math.h>
 class AirplaneState
 {
 private:
@@ -38,5 +39,6 @@ public:
     void setXPos(double newXPos);
     void setYPos(double newYPos);
     void setGroundSpeed(double newGroundSpeed);
+    void computeIAS(double groundSpeed);
 };
 #endif

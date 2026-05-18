@@ -115,3 +115,8 @@ void AirplaneState::setGroundSpeed(double newGroundSpeed)
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_groundSpeed = newGroundSpeed;
 }
+
+void AirplaneState::computeIAS(double groundSpeed)
+{
+    this->_airSpeed = groundSpeed * pow((1-0.0065*this->_altitude / 288.15),2.128);
+}
