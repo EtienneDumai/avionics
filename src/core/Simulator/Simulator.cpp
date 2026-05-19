@@ -1,7 +1,7 @@
 #include "Simulator.h"
 const double Simulator::_timeScale = 0.016;
 const int Simulator::_tickTime = 16;
-Simulator::Simulator(AirplaneState *airplane)
+Simulator::Simulator(AirplaneState* airplane)
 {
     this->_airplane = airplane;
     this->_simRunning = false;
@@ -20,9 +20,14 @@ void Simulator::simLoop()
     while (this->_simRunning)
     {
         this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
-        this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) * this->_airplane->getGroundSpeed() * (this->_timeScale));
-        this->_airplane->setXPos(this->_airplane->getXPos() + sin(this->_airplane->getHeading() * M_PI / 180) * this->_airplane->getGroundSpeed() * (this->_timeScale));
-        this->_airplane->setAltitude(this->_airplane->getAltitude() + this->_airplane->getVerticalSpeed() * this->_timeScale);
+        this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) *
+                                                                  this->_airplane->getGroundSpeed() *
+                                                                  (this->_timeScale));
+        this->_airplane->setXPos(this->_airplane->getXPos() + sin(this->_airplane->getHeading() * M_PI / 180) *
+                                                                  this->_airplane->getGroundSpeed() *
+                                                                  (this->_timeScale));
+        this->_airplane->setAltitude(this->_airplane->getAltitude() +
+                                     this->_airplane->getVerticalSpeed() * this->_timeScale);
         std::this_thread::sleep_for(std::chrono::milliseconds(this->getTickTime()));
     }
 }
@@ -38,12 +43,6 @@ void Simulator::stopSim()
     this->_simThread.join();
 }
 
-bool Simulator::getSimRunning()
-{
-    return this->_simRunning;
-}
+bool Simulator::getSimRunning() { return this->_simRunning; }
 
-int Simulator::getTickTime()
-{
-    return this->_tickTime;
-}
+int Simulator::getTickTime() { return this->_tickTime; }

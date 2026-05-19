@@ -1,11 +1,13 @@
 #ifndef AIRPLANESTATE_H
 #define AIRPLANESTATE_H
-#include <iostream>
-#include <mutex>
-#include "../core/Engine/Engine.h"
-#include <vector>
-#include <memory>
 #include <math.h>
+
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <vector>
+
+#include "../core/Engine/Engine.h"
 class AirplaneState
 {
 private:
@@ -18,12 +20,17 @@ private:
     double _AOA;
     double _heading;
     int _engineCount;
+    int _masse;
+    double _dragCoef;
+    double _surface;
     std::vector<std::unique_ptr<Engine>> _engines;
     std::mutex mutexAirplaneState;
 
 public:
-    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading, int engineCount, EngineConfig newEngineConfig);
-    AirplaneState(AirplaneState *airplane);
+    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed,
+                  double AOA, double heading, int engineCount, EngineConfig newEngineConfig, int newMasse,
+                  double newDragCoef, double newSurface);
+    AirplaneState(AirplaneState* airplane);
     ~AirplaneState();
     int getAltitude();
     double getXPos();
@@ -35,6 +42,9 @@ public:
     double getHeading();
     double getEngineRPM(int index);
     int getEnginesCount();
+    int getMasse();
+    double getDragCoef();
+    double getSurface();
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);

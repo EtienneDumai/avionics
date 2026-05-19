@@ -1,6 +1,6 @@
 #include "Display.h"
 const int Display::_tickTime = 100;
-Display::Display(AirplaneState *newAirplaneState)
+Display::Display(AirplaneState* newAirplaneState)
 {
     this->_airplane = newAirplaneState;
     this->_displayRunning = false;
@@ -13,10 +13,7 @@ Display::~Display()
         this->stopDisplay();
     }
 }
-int Display::getTickTime()
-{
-    return this->_tickTime;
-}
+int Display::getTickTime() { return this->_tickTime; }
 void Display::startDisplay()
 {
     this->_displayRunning = true;

@@ -1,4 +1,5 @@
 #include "Engine.h"
+
 #include <algorithm>
 
 Engine::Engine(double newSpoolRate, double newEngineRPM, int newCommandThrust, int newMaxthrust, bool newState)
@@ -10,9 +11,7 @@ Engine::Engine(double newSpoolRate, double newEngineRPM, int newCommandThrust, i
     this->_state = newState;
 }
 
-Engine::~Engine()
-{
-}
+Engine::~Engine() {}
 
 double Engine::getSpoolRate()
 {
@@ -92,7 +91,6 @@ int Engine::computeThrust()
 
 void Engine::updateRPM()
 {
-
     std::lock_guard<std::mutex> lock(this->_mutexEngine);
     if (this->_state)
     {

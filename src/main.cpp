@@ -1,7 +1,7 @@
-#include <iostream>
 #include <chrono>
-#include "state/AirplaneState.h"
+
 #include "core/Simulator/Simulator.h"
+#include "state/AirplaneState.h"
 #include "ui/Display.h"
 
 int main()

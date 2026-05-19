@@ -1,13 +1,28 @@
 #include "AirplaneState.h"
 
-AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed, double AOA, double heading, int engineCount, EngineConfig newEngineConfig) : _altitude(altitude), _xPos(xPos), _yPos(yPos), _airSpeed(airSpeed), _groundSpeed(groundSpeed), _verticalSpeed(verticalSpeed), _AOA(AOA), _heading(heading), _engineCount(engineCount)
+AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
+                             double verticalSpeed, double AOA, double heading, int engineCount,
+                             EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newSurface)
+    : _altitude(altitude),
+      _xPos(xPos),
+      _yPos(yPos),
+      _airSpeed(airSpeed),
+      _groundSpeed(groundSpeed),
+      _verticalSpeed(verticalSpeed),
+      _AOA(AOA),
+      _heading(heading),
+      _engineCount(engineCount),
+      _masse(newMasse),
+      _dragCoef(newDragCoef),
+      _surface(newSurface)
 {
     for (int i = 0; i < engineCount; i++)
     {
-        this->_engines.push_back(std::make_unique<Engine>(newEngineConfig.spoolRate, 0, 0, newEngineConfig.maxThrust, false));
+        this->_engines.push_back(
+            std::make_unique<Engine>(newEngineConfig.spoolRate, 0, 0, newEngineConfig.maxThrust, false));
     }
 }
-AirplaneState::AirplaneState(AirplaneState *airplane)
+AirplaneState::AirplaneState(AirplaneState* airplane)
 {
     this->_airSpeed = airplane->getAirSpeed();
     this->_altitude = airplane->getAltitude();
@@ -17,14 +32,16 @@ AirplaneState::AirplaneState(AirplaneState *airplane)
     this->_verticalSpeed = airplane->getVerticalSpeed();
     this->_xPos = airplane->getXPos();
     this->_yPos = airplane->getYPos();
-    for (const auto &e : airplane->_engines)
+    this->_masse = airplane->getMasse();
+    this->_dragCoef = airplane->getDragCoef();
+    this->_surface = airplane->getSurface();
+    for (const auto& e : airplane->_engines)
     {
-        this->_engines.push_back(std::make_unique<Engine>(e->getSpoolRate(), e->getEngineRPM(), e->getCommandRPM(), e->getMaxThrust(), e->getState()));
+        this->_engines.push_back(std::make_unique<Engine>(e->getSpoolRate(), e->getEngineRPM(), e->getCommandRPM(),
+                                                          e->getMaxThrust(), e->getState()));
     }
 }
-AirplaneState::~AirplaneState()
-{
-}
+AirplaneState::~AirplaneState() {}
 
 int AirplaneState::getAltitude()
 {
@@ -89,9 +106,26 @@ double AirplaneState::getEngineRPM(int index)
 
 int AirplaneState::getEnginesCount()
 {
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_engineCount;
 }
 
+int AirplaneState::getMasse()
+{
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    return this->_masse;
+}
+
+double AirplaneState::getDragCoef()
+{
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    return this->_dragCoef;
+}
+double AirplaneState::getSurface()
+{
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    return this->_surface;
+}
 void AirplaneState::setAltitude(int newAltitude)
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);

@@ -1,7 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-#include <mutex>
 #include <algorithm>
+#include <mutex>
 struct EngineConfig
 {
     double spoolRate;
@@ -15,7 +15,7 @@ private:
     double _spoolRate;
     double _engineRPM;
     int _commandRPM;
-    int _maxThrust; // in N (Newton)
+    int _maxThrust;  // in N (Newton)
     bool _state;
     std::mutex _mutexEngine;
 

@@ -1,16 +1,16 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
-#include "../../state/AirplaneState.h"
-#include <thread>
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <thread>
+
+#include "../../state/AirplaneState.h"
 class Simulator
 {
-
 private:
     // Variables
-    AirplaneState *_airplane;
+    AirplaneState* _airplane;
     std::atomic<bool> _simRunning;
     std::thread _simThread;
     static const double _timeScale;
@@ -21,7 +21,7 @@ private:
 
 public:
     // Constructeur
-    Simulator(AirplaneState *newAirplane);
+    Simulator(AirplaneState* newAirplane);
     ~Simulator();
 
     // Encapsulation
