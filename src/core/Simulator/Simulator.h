@@ -25,7 +25,6 @@ public:
     ~Simulator();
 
     // Encapsulation
-    AirplaneState *getAirplaneState();
     bool getSimRunning();
     int getTickTime();
 

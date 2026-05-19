@@ -12,17 +12,17 @@ Simulator::~Simulator()
     if (this->_simThread.joinable())
     {
         this->_simThread.join();
-    }    
+    }
 }
 
 void Simulator::simLoop()
 {
     while (this->_simRunning)
     {
-        this->_airplane->computeIAS(this->_airplane->getGroundSpeed()); 
-        this->_airplane->setYPos(this->_airplane->getYPos()+cos(this->_airplane->getHeading()*M_PI/180)*this->_airplane->getGroundSpeed()*(this->_timeScale));
-        this->_airplane->setXPos(this->_airplane->getXPos()+sin(this->_airplane->getHeading()*M_PI/180)*this->_airplane->getGroundSpeed()*(this->_timeScale));
-        this->_airplane->setAltitude(this->_airplane->getAltitude() + this->_airplane->getVerticalSpeed()*this->_timeScale);
+        this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
+        this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) * this->_airplane->getGroundSpeed() * (this->_timeScale));
+        this->_airplane->setXPos(this->_airplane->getXPos() + sin(this->_airplane->getHeading() * M_PI / 180) * this->_airplane->getGroundSpeed() * (this->_timeScale));
+        this->_airplane->setAltitude(this->_airplane->getAltitude() + this->_airplane->getVerticalSpeed() * this->_timeScale);
         std::this_thread::sleep_for(std::chrono::milliseconds(this->getTickTime()));
     }
 }

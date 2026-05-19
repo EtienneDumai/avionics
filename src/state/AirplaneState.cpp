@@ -118,5 +118,5 @@ void AirplaneState::setGroundSpeed(double newGroundSpeed)
 
 void AirplaneState::computeIAS(double groundSpeed)
 {
-    this->_airSpeed = groundSpeed * pow((1-0.0065*this->_altitude / 288.15),2.128);
+    this->_airSpeed = groundSpeed * pow((1 - 0.0065 * this->_altitude / 288.15), 2.128);
 }
