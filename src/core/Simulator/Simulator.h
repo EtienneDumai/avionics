@@ -18,6 +18,7 @@ private:
 
     // Méthodes
     void simLoop();
+    void computeGroundSpeed();
 
 public:
     // Constructeur

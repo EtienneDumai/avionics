@@ -1,5 +1,7 @@
 #include "AirplaneState.h"
 
+#include <mutex>
+
 AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
                              double verticalSpeed, double AOA, double heading, int engineCount,
                              EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newSurface)
@@ -120,6 +122,17 @@ double AirplaneState::getDragCoef()
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_dragCoef;
+}
+
+int AirplaneState::getTotalThrust()
+{
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    int totalThrust = 0;
+    for (int i = 0; i < this->_engineCount; i++)
+    {
+        totalThrust += this->_engines.at(i)->computeThrust();
+    }
+    return totalThrust;
 }
 double AirplaneState::getSurface()
 {

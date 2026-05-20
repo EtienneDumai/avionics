@@ -45,6 +45,7 @@ public:
     int getMasse();
     double getDragCoef();
     double getSurface();
+    int getTotalThrust();
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);
