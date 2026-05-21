@@ -5,7 +5,7 @@
 #include <iostream>
 #include <thread>
 
-#include "../state/AirplaneState.h"
+#include "../../state/AirplaneState.h"
 class Display
 {
 private:
