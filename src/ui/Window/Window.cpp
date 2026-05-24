@@ -1,9 +1,41 @@
 #include "Window.h"
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_pixels.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_video.h>
 
-Window::Window(AirplaneState* newAirplane) { this->_airplane = newAirplane; }
-Window::~Window() {}
+Window::Window(AirplaneState* newAirplane, int newWidth, int newHeight, const char* titre)
+{
+    this->_airplane = newAirplane;
+    this->_width = newWidth;
+    this->_height = newHeight;
+    SDL_Init(SDL_INIT_VIDEO);
+    this->_window =
+        SDL_CreateWindow(titre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->_width, this->_height, 0);
+    this->_renderer = SDL_CreateRenderer(this->_window, -1, SDL_RENDERER_ACCELERATED);
+    TTF_Init();
+    this->_font = TTF_OpenFont("assets/font/ShareTechMono-Regular.ttf", 18);
+}
+Window::~Window()
+{
+    if (this->_renderer)
+    {
+        SDL_DestroyRenderer(this->_renderer);
+    }
+    if (this->_window)
+    {
+        SDL_DestroyWindow(this->_window);
+    }
+    if (this->_font)
+    {
+        TTF_CloseFont(this->_font);
+    }
+    TTF_Quit();
+    SDL_Quit();
+}
 
 void Window::run()
 {
@@ -18,5 +50,11 @@ void Window::run()
                 isRunning = false;
             }
         }
+        SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(this->_renderer);
+        SDL_SetRenderDrawColor(this->_renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_Rect rect = {100, 100, 100, 100};
+        SDL_RenderFillRect(this->_renderer, &rect);
+        SDL_RenderPresent(this->_renderer);
     }
 }

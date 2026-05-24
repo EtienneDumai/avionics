@@ -7,6 +7,8 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++20
 # Nom de l'exécutable
 TARGET = avionics
 
+# Linker pour les libs
+LDLIBS = -lSDL2 -lSDL2_ttf
 # Fichiers sources
 SRCS = $(shell find src -type f -name "*.cpp")
 
@@ -15,7 +17,7 @@ OBJS = $(SRCS:.cpp=.o)
 
 # Règle principale
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $(TARGET) $(OBJS)
 
 # Compilation des .cpp en .o
 %.o: %.cpp

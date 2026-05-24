@@ -3,9 +3,11 @@
 
 #include "../../state/AirplaneState.h"
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
 class Window
 {
 private:
+    TTF_Font* _font;
     SDL_Window* _window;
     SDL_Renderer* _renderer;
     AirplaneState* _airplane;
@@ -15,7 +17,7 @@ public:
     int _height;
     int _width;
     void run();
-    Window(AirplaneState* newAirplane);
+    Window(AirplaneState* newAirplane, int newWidth, int newHeight, const char* titre);
 
     ~Window();
 };
