@@ -12,12 +12,13 @@ private:
     SDL_Renderer* _renderer;
     AirplaneState* _airplane;
     static const int _tickTime;
+    void displayInfos(std::string info, int lineIndex);
 
 public:
     int _height;
     int _width;
     void run();
-    Window(AirplaneState* newAirplane, int newWidth, int newHeight, const char* titre);
+    Window(AirplaneState* newAirplane, int newWidth, int newHeight, const char* title);
 
     ~Window();
 };
