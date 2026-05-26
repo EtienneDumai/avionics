@@ -45,9 +45,9 @@ void Window::run()
 {
     SDL_Event event;
     bool isRunning = true;
-    std::vector<std::string> tabVal;
     while (isRunning)
     {
+        std::vector<std::string> tabVal;
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
