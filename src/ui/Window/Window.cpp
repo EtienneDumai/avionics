@@ -45,6 +45,7 @@ void Window::run()
 {
     SDL_Event event;
     bool isRunning = true;
+    std::vector<std::string> tabVal;
     while (isRunning)
     {
         while (SDL_PollEvent(&event))
@@ -54,13 +55,22 @@ void Window::run()
                 isRunning = false;
             }
         }
+        tabVal.push_back("GSPD : " + std::to_string(this->_airplane->getGroundSpeed()));
+        tabVal.push_back("HEAD : " + std::to_string(this->_airplane->getHeading()));
+        tabVal.push_back("ALT : " + std::to_string(this->_airplane->getAltitude()));
+        tabVal.push_back("ENG : " + std::to_string(this->_airplane->getEngineRPM(1)) + "%");
+        tabVal.push_back("XPOS : " + std::to_string(this->_airplane->getXPos()));
+        tabVal.push_back("YPOS : " + std::to_string(this->_airplane->getYPos()));
+        tabVal.push_back("AOA : " + std::to_string(this->_airplane->getAOA()));
         SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(this->_renderer);
         SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-
-        this->displayInfos("GS : " + std::to_string(this->_airplane->getGroundSpeed()), 1);
-        this->displayInfos("HEAD : " + std::to_string(this->_airplane->getHeading()), 2);
+        for (int i = 0; i < static_cast<int>(tabVal.size()); i++)
+        {
+            this->displayInfos(tabVal.at(i), i+1);
+        }
         SDL_RenderPresent(this->_renderer);
+        tabVal.clear();
     }
 }
 
