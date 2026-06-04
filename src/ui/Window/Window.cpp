@@ -80,7 +80,7 @@ void Window::run()
         SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         for (int i = 0; i < static_cast<int>(tabVal.size()); i++)
         {
-            this->displayInfos(tabVal.at(i), i+1);
+            this->displayInfos(tabVal.at(i).data, i+1, tabVal.at(i).color);
         }
         SDL_RenderPresent(this->_renderer);
         tabVal.clear();
