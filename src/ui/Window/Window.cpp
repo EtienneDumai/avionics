@@ -45,9 +45,11 @@ void Window::run()
 {
     SDL_Event event;
     bool isRunning = true;
+    SDL_Color green = {0,255,0,SDL_ALPHA_OPAQUE};
+    SDL_Color red = {255,0,0,SDL_ALPHA_OPAQUE};
     while (isRunning)
     {
-        std::vector<std::string> tabVal;
+        std::vector<DataColor> tabVal;
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
@@ -55,16 +57,24 @@ void Window::run()
                 isRunning = false;
             }
         }
-        tabVal.push_back("GSPD : " + std::to_string(this->_airplane->getGroundSpeed()) + "m/s");
-        tabVal.push_back("HEAD : " + std::to_string(this->_airplane->getHeading()) + " °");
-        tabVal.push_back("ALT : " + std::to_string(this->_airplane->getAltitude()) + "m");
+        tabVal.push_back({"GSPD : " + std::to_string(this->_airplane->getGroundSpeed()) + "m/s",green});
+        tabVal.push_back({"HEAD : " + std::to_string(this->_airplane->getHeading()) + " °", green});
+        tabVal.push_back({"ALT : " + std::to_string(this->_airplane->getAltitude()) + "m", green});
         for (int i = 0; i <= static_cast<int>(this->_airplane->getEnginesCount()); i++)
         {
-            tabVal.push_back("ENG"+ std::to_string(i+1)+" : " + std::to_string(this->_airplane->getEngineRPM(i)) + "%");
+            if (this->_airplane->getEngineRPM(i)<=100)
+            {
+                tabVal.push_back({"ENG"+ std::to_string(i+1)+" : " + std::to_string(this->_airplane->getEngineRPM(i)) + "%",green});
+            }
+            else
+            {
+                tabVal.push_back({"ENG"+ std::to_string(i+1)+" : " + std::to_string(this->_airplane->getEngineRPM(i)) + "%",red});
+            }
+            
         }
-        tabVal.push_back("XPOS : " + std::to_string(this->_airplane->getXPos()));
-        tabVal.push_back("YPOS : " + std::to_string(this->_airplane->getYPos()));
-        tabVal.push_back("AOA : " + std::to_string(this->_airplane->getAOA())+" °");
+        tabVal.push_back({"XPOS : " + std::to_string(this->_airplane->getXPos()),green});
+        tabVal.push_back({"YPOS : " + std::to_string(this->_airplane->getYPos()),green});
+        tabVal.push_back({"AOA : " + std::to_string(this->_airplane->getAOA())+" °", green});
         SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(this->_renderer);
         SDL_SetRenderDrawColor(this->_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -77,9 +87,9 @@ void Window::run()
     }
 }
 
-void Window::displayInfos(std::string info, int lineIndex)
+void Window::displayInfos(std::string info, int lineIndex, SDL_Color color)
 {
-    SDL_Surface* surface = TTF_RenderText_Solid(this->_font, info.c_str(), {0, 255, 0, SDL_ALPHA_OPAQUE});
+    SDL_Surface* surface = TTF_RenderText_Solid(this->_font, info.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(this->_renderer, surface);
     SDL_FreeSurface(surface);
     int w, h;

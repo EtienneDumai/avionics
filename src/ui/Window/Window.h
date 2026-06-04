@@ -12,7 +12,7 @@ private:
     SDL_Renderer* _renderer;
     AirplaneState* _airplane;
     static const int _tickTime;
-    void displayInfos(std::string info, int lineIndex);
+    void displayInfos(std::string info, int lineIndex, SDL_Color color);
 
 public:
     int _height;
@@ -22,4 +22,10 @@ public:
 
     ~Window();
 };
+struct DataColor
+{
+    std::string data;
+    SDL_Color color;
+};
+
 #endif  // !WINDOW_H
