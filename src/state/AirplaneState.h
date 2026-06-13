@@ -11,18 +11,18 @@
 class AirplaneState
 {
 private:
-    int _altitude;
-    double _xPos;
-    double _yPos;
-    double _airSpeed;
-    double _groundSpeed;
-    double _verticalSpeed;
-    double _AOA;
-    double _heading;
+    int _altitude;        // m
+    double _xPos;         // m
+    double _yPos;         // m
+    double _airSpeed;     // m/s  (IAS — corrigé par la densité atmosphérique)
+    double _groundSpeed;  // m/s
+    double _verticalSpeed;// m/s
+    double _AOA;          // °
+    double _heading;      // °
     int _engineCount;
-    int _masse;
-    double _dragCoef;
-    double _surface;
+    int _masse;           // kg
+    double _dragCoef;     // sans dimension (Cx)
+    double _surface;      // m²
     std::vector<std::unique_ptr<Engine>> _engines;
     std::mutex mutexAirplaneState;
 
