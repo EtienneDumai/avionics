@@ -117,6 +117,6 @@ AirplaneState airplane(
 - [x] Modèle moteur avec inertie (spool rate)
 - [x] Affichage SDL2
 - [ ] Ajout d'un GIF de démonstration
-- [ ] API WebSocket C++ pour exposer l'état en temps réel
-- [ ] Frontend de visualisation connecté à l'API
+- [ ] Simulation physique complète
 - [ ] Commandes de vol interactives (clavier)
+- [ ] Intégration d'openGL pour une représentation plus fidèle et immersive
