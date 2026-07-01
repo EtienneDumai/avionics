@@ -1,0 +1,40 @@
+TODO - Prochaines etapes physique
+==================================
+
+1. Gravite
+   - Ajouter constante g (9.81 m/s2) en static const dans Simulator.h/.cpp (meme pattern que _timeScale/_tickTime)
+   - Ajouter setVerticalSpeed() dans AirplaneState (manquant actuellement, seul getVerticalSpeed existe)
+   - Ajouter computeVerticalSpeed() dans Simulator, appelee dans simLoop() comme computeGroundSpeed()
+   - Attention au signe : altitude augmente vers le haut, verticalSpeed doit diminuer sous l'effet de g
+
+2. Portance (lift)
+   - Formule a definir : 0.5 * RHO * v^2 * Cl * S (meme structure que le drag existant)
+   - Decider : Cl constant (ajouter _liftCoef dans AirplaneState) ou Cl derive de _AOA ?
+   - Decider : quelle vitesse utiliser (_groundSpeed vs _airSpeed) - revoir aussi computeGroundSpeed()
+     qui utilise _groundSpeed pour le drag, verifier si c'est coherent
+   - Simplification actuelle acceptee : portance purement verticale (pas de tangage/roulis encore)
+   - Integrer dans computeVerticalSpeed() : force nette = lift - poids
+
+3. AOA (_AOA)
+   - Champ present dans AirplaneState mais non utilise nulle part
+   - Decider si AOA sert a calculer Cl (etape 2) et comment il est alimente
+     (input pilote ? derive de l'orientation vs vecteur vitesse ?)
+
+4. Orientation 3D (quaternion)
+   - Quaternion/Vec3 complets mais non branches dans AirplaneState (toujours _heading en degres, yaw seul)
+   - Ajouter methode pour extraire le vecteur avant (forward) depuis le quaternion
+   - Remplacer _heading (et a terme _AOA) par une orientation quaternion complete dans AirplaneState
+   - Necessaire pour calculer une vraie portance perpendiculaire au flux d'air (pas juste verticale)
+
+5. Forces vectorielles
+   - Actuellement tout est scalaire (F_DRAG, F_NETTE le long d'un seul axe)
+   - Passer a des forces en Vec3 (poussee, trainee, portance, gravite) sommees puis divisees par la masse
+   - Integrer acceleration -> vitesse -> position en Vec3 plutot qu'en x/y/altitude separes
+
+6. Dynamique angulaire
+   - Pas de vitesse angulaire, pas de moment d'inertie, pas de couple
+   - A prevoir pour coupler les gouvernes (elevateur/ailerons/rudder) a la rotation du quaternion
+
+7. Divers / a surveiller
+   - Comportement au sol : sans portance suffisante, l'avion "tombe" indefiniment, pas de plancher gere
+   - Integration Euler simple actuellement (a suffisant pour l'instant, RK4 a envisager plus tard si instabilite)
