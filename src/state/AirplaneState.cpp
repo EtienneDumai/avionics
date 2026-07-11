@@ -4,7 +4,7 @@
 
 AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
                              double verticalSpeed, double AOA, double heading, int engineCount,
-                             EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newSurface)
+                             EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newSurface, double newLiftCoef)
     : _altitude(altitude),
       _xPos(xPos),
       _yPos(yPos),
@@ -16,7 +16,8 @@ AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airS
       _engineCount(engineCount),
       _masse(newMasse),
       _dragCoef(newDragCoef),
-      _surface(newSurface)
+      _surface(newSurface),
+      _liftCoef(newLiftCoef)
 {
     for (int i = 0; i < engineCount; i++)
     {
@@ -37,6 +38,7 @@ AirplaneState::AirplaneState(AirplaneState* airplane)
     this->_masse = airplane->getMasse();
     this->_dragCoef = airplane->getDragCoef();
     this->_surface = airplane->getSurface();
+    this->_liftCoef = airplane->getLiftCoef();
     for (const auto& e : airplane->_engines)
     {
         this->_engines.push_back(std::make_unique<Engine>(e->getSpoolRate(), e->getEngineRPM(), e->getCommandRPM(),
@@ -123,7 +125,10 @@ double AirplaneState::getDragCoef()
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_dragCoef;
 }
-
+double AirplaneState::getLiftCoef(){
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    return this->_liftCoef;
+}
 int AirplaneState::getTotalThrust()
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);

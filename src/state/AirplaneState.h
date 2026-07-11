@@ -22,6 +22,7 @@ private:
     int _engineCount;
     int _masse;           // kg
     double _dragCoef;     // sans dimension (Cx)
+    double _liftCoef;     // sans dimensions (Cl)
     double _surface;      // m²
     std::vector<std::unique_ptr<Engine>> _engines;
     std::mutex mutexAirplaneState;
@@ -29,7 +30,7 @@ private:
 public:
     AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed,
                   double AOA, double heading, int engineCount, EngineConfig newEngineConfig, int newMasse,
-                  double newDragCoef, double newSurface);
+                  double newDragCoef, double newSurface, double newLiftCoef);
     AirplaneState(AirplaneState* airplane);
     ~AirplaneState();
     int getAltitude();
@@ -45,6 +46,7 @@ public:
     int getMasse();
     double getDragCoef();
     double getSurface();
+    double getLiftCoef();
     int getTotalThrust();
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);

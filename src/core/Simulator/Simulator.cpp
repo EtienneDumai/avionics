@@ -22,8 +22,8 @@ void Simulator::simLoop()
     while (this->_simRunning)
     {
         this->computeGroundSpeed();
-        this->computeVerticalSpeed();
         this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
+        this->computeVerticalSpeed();
         this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) *
                                                                   this->_airplane->getGroundSpeed() *
                                                                   (this->_timeScale));
