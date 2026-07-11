@@ -49,6 +49,7 @@ public:
     void setAltitude(int newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);
+    void setVerticalSpeed(double newVerticalSpeed);
     void setGroundSpeed(double newGroundSpeed);
     void computeIAS(double groundSpeed);
 };

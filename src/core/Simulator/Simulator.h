@@ -15,10 +15,12 @@ private:
     std::thread _simThread;
     static const double _timeScale;
     static const int _tickTime;
+    static const double _g;
 
     // Méthodes
     void simLoop();
     void computeGroundSpeed();
+    void computeVerticalSpeed();
 
 public:
     // Constructeur

@@ -2,6 +2,7 @@
 
 const double Simulator::_timeScale = 0.016;
 const int Simulator::_tickTime = 16;
+const double Simulator::_g = 9.81;
 Simulator::Simulator(AirplaneState* airplane)
 {
     this->_airplane = airplane;
@@ -21,6 +22,7 @@ void Simulator::simLoop()
     while (this->_simRunning)
     {
         this->computeGroundSpeed();
+        this->computeVerticalSpeed();
         this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
         this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) *
                                                                   this->_airplane->getGroundSpeed() *
@@ -52,6 +54,10 @@ void Simulator::computeGroundSpeed()
     const double F_NETTE = this->_airplane->getTotalThrust() - F_DRAG;
     const double A = F_NETTE / this->_airplane->getMasse();
     this->_airplane->setGroundSpeed(this->_airplane->getGroundSpeed() + A * this->_timeScale);
+}
+void Simulator::computeVerticalSpeed(){
+    double newVerticalSpeed = this->_airplane->getVerticalSpeed() - this->_g*this->_timeScale;
+    this->_airplane->setVerticalSpeed(newVerticalSpeed);
 }
 bool Simulator::getSimRunning() { return this->_simRunning; }
 
