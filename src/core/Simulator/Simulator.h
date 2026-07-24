@@ -21,6 +21,7 @@ private:
     void simLoop();
     void computeGroundSpeed();
     void computeVerticalSpeed();
+    double computeAirDensity(int altitude);
 
 public:
     // Constructeur

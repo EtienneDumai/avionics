@@ -48,8 +48,7 @@ void Simulator::stopSim()
 }
 void Simulator::computeGroundSpeed()
 {
-    const double RHO = 1.225 * pow((1 - 0.0065 * this->_airplane->getAltitude() / 288.15), 4.256);
-    const double F_DRAG = 0.5 * RHO * pow(this->_airplane->getGroundSpeed(), 2) * this->_airplane->getDragCoef() *
+    const double F_DRAG = 0.5 * computeAirDensity(this->_airplane->getAltitude()) * pow(this->_airplane->getGroundSpeed(), 2) * this->_airplane->getDragCoef() *
                           this->_airplane->getSurface();
     const double F_NETTE = this->_airplane->getTotalThrust() - F_DRAG;
     const double A = F_NETTE / this->_airplane->getMasse();
@@ -58,6 +57,10 @@ void Simulator::computeGroundSpeed()
 void Simulator::computeVerticalSpeed(){
     double newVerticalSpeed = this->_airplane->getVerticalSpeed() - this->_g*this->_timeScale;
     this->_airplane->setVerticalSpeed(newVerticalSpeed);
+}
+double Simulator::computeAirDensity(int altitude){
+    double RHO = 1.225 * pow((1 - 0.0065 * altitude / 288.15), 4.256);
+    return RHO;
 }
 bool Simulator::getSimRunning() { return this->_simRunning; }
 
