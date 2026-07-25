@@ -2,9 +2,9 @@
 
 #include <mutex>
 
-AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
+AirplaneState::AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
                              double verticalSpeed, double AOA, double heading, int engineCount,
-                             EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newSurface, double newLiftCoef)
+                             EngineConfig newEngineConfig, int newMasse, double newDragCoef,  double newLiftCoef, double newSurface)
     : _altitude(altitude),
       _xPos(xPos),
       _yPos(yPos),
@@ -16,8 +16,8 @@ AirplaneState::AirplaneState(int altitude, double xPos, double yPos, double airS
       _engineCount(engineCount),
       _masse(newMasse),
       _dragCoef(newDragCoef),
-      _surface(newSurface),
-      _liftCoef(newLiftCoef)
+      _liftCoef(newLiftCoef),
+      _surface(newSurface)
 {
     for (int i = 0; i < engineCount; i++)
     {
@@ -47,7 +47,7 @@ AirplaneState::AirplaneState(AirplaneState* airplane)
 }
 AirplaneState::~AirplaneState() {}
 
-int AirplaneState::getAltitude()
+double AirplaneState::getAltitude()
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_altitude;
@@ -144,7 +144,7 @@ double AirplaneState::getSurface()
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_surface;
 }
-void AirplaneState::setAltitude(int newAltitude)
+void AirplaneState::setAltitude(double newAltitude)
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_altitude = newAltitude;

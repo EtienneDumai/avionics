@@ -11,7 +11,7 @@
 class AirplaneState
 {
 private:
-    int _altitude;        // m
+    double _altitude;        // m
     double _xPos;         // m
     double _yPos;         // m
     double _airSpeed;     // m/s  (IAS — corrigé par la densité atmosphérique)
@@ -28,12 +28,12 @@ private:
     std::mutex mutexAirplaneState;
 
 public:
-    AirplaneState(int altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed,
+    AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed,
                   double AOA, double heading, int engineCount, EngineConfig newEngineConfig, int newMasse,
-                  double newDragCoef, double newSurface, double newLiftCoef);
+                  double newDragCoef,  double newLiftCoef, double newSurface);
     AirplaneState(AirplaneState* airplane);
     ~AirplaneState();
-    int getAltitude();
+    double getAltitude();
     double getXPos();
     double getYPos();
     double getAirSpeed();
@@ -48,7 +48,7 @@ public:
     double getSurface();
     double getLiftCoef();
     int getTotalThrust();
-    void setAltitude(int newAltitude);
+    void setAltitude(double newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);
     void setVerticalSpeed(double newVerticalSpeed);

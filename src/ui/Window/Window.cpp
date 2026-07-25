@@ -8,7 +8,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
 
-#include <sstream>
 #include <string>
 
 Window::Window(AirplaneState* newAirplane, int newWidth, int newHeight, const char* title)
@@ -59,7 +58,7 @@ void Window::run()
         }
         tabVal.push_back({"GSPD : " + std::to_string(static_cast<int>(this->_airplane->getGroundSpeed())) + " m/s",green});
         tabVal.push_back({"HEAD : " + std::to_string(static_cast<int>(this->_airplane->getHeading())) + " °", green});
-        tabVal.push_back({"ALT : " + std::to_string(this->_airplane->getAltitude()) + " m", green});
+        tabVal.push_back({"ALT : " + std::to_string(static_cast<int>(this->_airplane->getAltitude())) + " m", green});
         for (int i = 0; i <= static_cast<int>(this->_airplane->getEnginesCount()); i++)
         {
             if (this->_airplane->getEngineRPM(i)<=100)
@@ -70,7 +69,6 @@ void Window::run()
             {
                 tabVal.push_back({"ENG"+ std::to_string(i+1)+" : " + std::to_string(static_cast<int>(this->_airplane->getEngineRPM(i))) + " %",red});
             }
-            
         }
         tabVal.push_back({"XPOS : " + std::to_string(static_cast<int>(this->_airplane->getXPos())),green});
         tabVal.push_back({"YPOS : " + std::to_string(static_cast<int>(this->_airplane->getYPos())),green});

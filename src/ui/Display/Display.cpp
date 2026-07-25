@@ -31,7 +31,7 @@ void Display::displayLoop()
         std::cout << "ASPD : " << this->_airplane->getAirSpeed() << std::endl;
         std::cout << "GSPD : " << this->_airplane->getGroundSpeed() << std::endl;
         std::cout << "AOA : " << this->_airplane->getAOA() << std::endl;
-        std::cout << "ALT : " << this->_airplane->getAltitude() << std::endl;
+        std::cout << "ALT : " << static_cast<int>(this->_airplane->getAltitude()) << std::endl;
         for (int i = 0; i < this->_airplane->getEnginesCount(); i++)
         {
             std::cout << "ENG" << i + 1 << " : " << this->_airplane->getEngineRPM(i) << std::endl;

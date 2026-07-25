@@ -7,7 +7,7 @@
 
 int main()
 {
-    AirplaneState airplane(150, 0, 0, 150, 175, 0, 0, 0, 1, {0.2, 15000}, 70000, 0.03, 122);
+    AirplaneState airplane(150.00, 0, 0, 150, 175, 0, 0, 0, 1, {0.2, 15000}, 70000, 0.03, 0.42, 122);
     Simulator simulator(&airplane);
     Window window(&airplane, 300, 300, "Avionics");
     simulator.startSim();
