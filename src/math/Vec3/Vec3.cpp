@@ -35,3 +35,14 @@ Vec3 Vec3::normalize()
     }
     return Vec3(this->getX() / vectLength, this->getY() / vectLength, this->getZ() / vectLength);
 }
+double Vec3::dot(const Vec3& v) const
+{
+    return this->getX() * v.getX() + this->getY() * v.getY() + this->getZ() * v.getZ();
+}
+Vec3 Vec3::cross(const Vec3& v) const
+{
+    double uv_x = this->getY() * v.getZ() - this->getZ() * v.getY();
+    double uv_y = this->getZ() * v.getX() - this->getX() * v.getZ();
+    double uv_z = this->getX() * v.getY() - this->getY() * v.getX();
+    return  Vec3(uv_x, uv_y, uv_z);
+}

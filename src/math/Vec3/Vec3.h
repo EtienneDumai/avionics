@@ -20,5 +20,7 @@ public:
     void setY(double newY);
     void setZ(double newZ);
     Vec3 normalize();
+    double dot(const Vec3& v) const;
+    Vec3 cross(const Vec3& v) const;
 };
 #endif
