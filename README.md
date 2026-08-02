@@ -29,12 +29,17 @@ src/
 ├── core/
 │   ├── Engine/         # Modèle moteur (RPM, poussée, spool rate)
 │   └── Simulator/      # Boucle de simulation physique (thread dédié)
+├── math/
+│   ├── Vec3/           # Vecteur 3D (dot, cross, normalize)
+│   └── Quaternion/     # Rotation 3D (composition ; rotation d'un Vec3 en cours)
 ├── state/
-│   └── AirplaneState/  # État partagé de l'avion (thread-safe)
+│   └── AirplaneState.h/.cpp  # État partagé de l'avion (thread-safe)
 └── ui/
     ├── Display/        # Affichage terminal (thread dédié)
     └── Window/         # Fenêtre SDL2
 ```
+
+> `math/` n'est pas encore branché dans `AirplaneState` (toujours un cap scalaire `_heading` en degrés) — voir `docs/math.md` et la roadmap.
 
 **Flux de données :**
 ```
@@ -47,10 +52,15 @@ src/
 
 ## Physique simulée
 
-- **Traînée aérodynamique** : `F_drag = 0.5 * ρ * v² * Cx * S` avec densité atmosphérique variable selon l'altitude (modèle ISA)
+- **Densité atmosphérique (ISA simplifié)** : `ρ(h)` décroît avec l'altitude, utilisée à la fois pour la traînée et la portance
+- **Traînée aérodynamique** : `F_drag = 0.5 * ρ * v_sol² * Cx * S`
+- **Portance** : `F_lift = 0.5 * ρ * v_air² * Cl * S` — `Cl` constant pour l'instant (pas encore dérivé de l'angle d'attaque)
+- **Gravité** : intégrée à la vitesse verticale (`g = 9.81 m/s²`), combinée à la portance pour la force nette
 - **Vitesse indiquée (IAS)** : calculée depuis la vitesse sol et l'altitude
-- **Poussée moteur** : modélisée avec un spool rate (inertie de montée en régime)
-- **Position** : intégration cap + vitesse sol → coordonnées X/Y
+- **Poussée moteur** : modélisée avec un spool rate (inertie de montée en régime) — **pas encore branchée** dans la boucle de simulation (`Engine::updateRPM()`/`setState()` ne sont jamais appelées), donc la poussée totale reste nulle en l'état
+- **Position** : intégration cap + vitesse sol → coordonnées X/Y ; altitude intégrée depuis la vitesse verticale
+
+> Détail des équations et de l'ordre exact des appels dans `simLoop()` : voir `docs/simulator.md`. Pour `Vec3`/`Quaternion` : `docs/math.md`.
 
 ---
 
@@ -104,7 +114,8 @@ AirplaneState airplane(
     1,            // nombre de moteurs
     {0.2, 15000}, // spool rate, poussée max (N)
     70000,        // masse (kg)
-    0.03,         // coefficient de traînée
+    0.03,         // coefficient de traînée (Cx)
+    0.42,         // coefficient de portance (Cl)
     122           // surface alaire (m²)
 );
 ```
@@ -116,7 +127,14 @@ AirplaneState airplane(
 - [x] Boucle de simulation physique multi-thread
 - [x] Modèle moteur avec inertie (spool rate)
 - [x] Affichage SDL2
+- [x] Gravité et portance (Cl constant, force purement verticale)
+- [x] `Vec3` (dot, cross, normalize) et `Quaternion` (composition de rotations)
+- [ ] Rotation d'un `Vec3` par un `Quaternion` (`Quaternion::rotate`, en cours)
+- [ ] AOA réel dérivé de l'orientation (quaternion) et du vecteur vitesse, remplaçant le `Cl` constant
+- [ ] Forces vectorielles 3D (actuellement scalaires sur un seul axe à la fois)
+- [ ] Dynamique angulaire (couple, moment d'inertie)
+- [ ] Branchement des moteurs dans `simLoop()` (`updateRPM`/`setState` jamais appelées actuellement)
+- [ ] Tests unitaires C++
 - [ ] Ajout d'un GIF de démonstration
-- [ ] Simulation physique complète
 - [ ] Commandes de vol interactives (clavier)
-- [ ] Intégration d'openGL pour une représentation plus fidèle et immersive
+- [ ] Intégration d'OpenGL pour une représentation plus fidèle et immersive
