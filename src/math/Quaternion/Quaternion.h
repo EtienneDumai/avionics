@@ -1,7 +1,8 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
-#include "../Vec3/Vec3.h"
 #include <cmath>
+
+#include "../Vec3/Vec3.h"
 class Quaternion
 {
 private:
@@ -25,5 +26,6 @@ public:
     void setZ(double newZ);
     void setW(double newW);
     Quaternion multiply(const Quaternion& q2);
+    Vec3 rotate(const Vec3& v) const;
 };
 #endif

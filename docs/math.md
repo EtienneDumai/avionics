@@ -16,6 +16,22 @@ $$\hat{v} = \frac{v}{\|v\|} = \left(\frac{x}{\|v\|},\ \frac{y}{\|v\|},\ \frac{z}
 
 Si `‖v‖ < 1e-9`, on retourne le vecteur nul `(0, 0, 0)` pour éviter une division par zéro. La comparaison utilise un seuil (epsilon) plutôt que `== 0.0` car les `double` ont des erreurs de précision en virgule flottante.
 
+### Produit scalaire (dot product)
+
+$$u \cdot v = u_x v_x + u_y v_y + u_z v_z$$
+
+Le résultat est un scalaire (pas un vecteur). Géométriquement, `u · v = ‖u‖‖v‖cos θ`, mais cette définition est circulaire pour le calcul : `θ` est justement ce qu'on déduit du dot product (via `acos`), pas l'inverse — c'est la formule en composantes ci-dessus qu'on implémente.
+
+Utilité principale : mesurer à quel point deux vecteurs pointent dans la même direction (positif = même sens, négatif = sens opposés, nul = perpendiculaires). Sert de brique pour calculer un angle entre deux vecteurs (ex : angle d'attaque entre le vecteur avant de l'avion et le vecteur vitesse).
+
+### Produit vectoriel (cross product)
+
+$$u \wedge v = \begin{pmatrix} u_y v_z - u_z v_y \\ u_z v_x - u_x v_z \\ u_x v_y - u_y v_x \end{pmatrix}$$
+
+Contrairement au produit scalaire, le résultat est un **vecteur**, perpendiculaire à la fois à `u` et à `v` (règle de la main droite pour son sens). Sa norme vaut `‖u‖‖v‖sin θ`.
+
+**Attention : le produit vectoriel n'est pas commutatif.** `u ∧ v = -(v ∧ u)` — l'ordre des opérandes inverse le sens du résultat.
+
 ---
 
 ## Quaternion
@@ -62,6 +78,26 @@ $$y = w_1 y_2 - x_1 z_2 + y_1 w_2 + z_1 x_2$$
 $$z = w_1 z_2 + x_1 y_2 - y_1 x_2 + z_1 w_2$$
 
 **Attention : la multiplication de quaternions n'est pas commutative.** `q1 * q2 ≠ q2 * q1`. L'ordre compte — appliquer pitch puis yaw n'est pas la même rotation qu'yaw puis pitch.
+
+### Rotation d'un vecteur
+
+> **⚠️ Pas encore implémentée** — `Vec3 rotate(const Vec3& v) const` est déclarée dans `Quaternion.h` mais son corps reste à écrire dans `Quaternion.cpp`.
+
+Pour faire tourner un vecteur `v` par un quaternion de rotation `q` (unitaire), on transforme d'abord `v` en **quaternion pur** (partie scalaire nulle) :
+
+$$p = (w=0,\ x=v_x,\ y=v_y,\ z=v_z)$$
+
+Puis on calcule :
+
+$$p' = q \times p \times q^{-1}$$
+
+La partie vectorielle du résultat `p'` (ses composantes `x, y, z`) est le vecteur tourné.
+
+Pour un quaternion **unitaire**, l'inverse est simplement le **conjugué** — pas besoin de division :
+
+$$q^{-1} = \bar{q} = (w,\ -x,\ -y,\ -z)$$
+
+Les deux multiplications (`q × p` puis `× q⁻¹`) se font avec `multiply()`, déjà implémentée.
 
 ### Pourquoi les quaternions plutôt que les angles d'Euler ?
 
