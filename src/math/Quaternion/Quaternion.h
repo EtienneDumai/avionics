@@ -25,7 +25,7 @@ public:
     void setY(double newY);
     void setZ(double newZ);
     void setW(double newW);
-    Quaternion multiply(const Quaternion& q2);
+    Quaternion multiply(const Quaternion& q2)const;
     Vec3 rotate(const Vec3& v) const;
 };
 #endif

@@ -27,6 +27,7 @@ Quaternion::Quaternion(){
     this->_z = 0.0;
     this->_w = 1.0;
 }
+Quaternion::~Quaternion(){}
 double Quaternion::getX() const{
     return this->_x;
 }
@@ -52,10 +53,21 @@ void Quaternion::setW(double newW){
     this->_w = newW;
 }
 
-Quaternion Quaternion::multiply(const Quaternion& q2){
+Quaternion Quaternion::multiply(const Quaternion& q2) const {
     double w = this->getW()*q2.getW() - this->getX()*q2.getX() - this->getY()*q2.getY() - this->getZ()*q2.getZ();
     double x = this->getW()*q2.getX() + this->getX()*q2.getW() + this->getY()*q2.getZ() - this->getZ()*q2.getY();
     double y = this->getW()*q2.getY() - this->getX()*q2.getZ() + this->getY()*q2.getW() + this->getZ()*q2.getX();
     double z = this->getW()*q2.getZ() + this->getX()*q2.getY() - this->getY()*q2.getX() + this->getZ()*q2.getW();
     return Quaternion(x,y,z,w);
+}
+
+Vec3 Quaternion::rotate(const Vec3& v) const {
+    Quaternion qVec = Quaternion(v.getX(), v.getY(), v.getZ(), 0);
+    double qX = -this->getX();
+    double qY = -this->getY();
+    double qZ = -this->getZ();
+    double qW = this->getW();
+    Quaternion qInv = Quaternion(qX,qY,qZ,qW);
+    Quaternion qRet = this->multiply(qVec.multiply(qInv));
+    return Vec3(qRet.getX(), qRet.getY(), qRet.getZ());
 }
