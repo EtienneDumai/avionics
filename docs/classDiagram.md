@@ -194,6 +194,8 @@ classDiagram
         +setY(double) void
         +setZ(double) void
         +normalize() Vec3
+        +dot(const Vec3&) double
+        +cross(const Vec3&) Vec3
     }
 ```
 
@@ -219,6 +221,7 @@ classDiagram
         +setZ(double) void
         +setW(double) void
         +multiply(const Quaternion&) Quaternion
+        +rotate(const Vec3&) Vec3
     }
 ```
 

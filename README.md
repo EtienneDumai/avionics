@@ -31,7 +31,7 @@ src/
 │   └── Simulator/      # Boucle de simulation physique (thread dédié)
 ├── math/
 │   ├── Vec3/           # Vecteur 3D (dot, cross, normalize)
-│   └── Quaternion/     # Rotation 3D (composition ; rotation d'un Vec3 en cours)
+│   └── Quaternion/     # Rotation 3D (composition, rotation d'un Vec3)
 ├── state/
 │   └── AirplaneState.h/.cpp  # État partagé de l'avion (thread-safe)
 └── ui/
@@ -128,8 +128,7 @@ AirplaneState airplane(
 - [x] Modèle moteur avec inertie (spool rate)
 - [x] Affichage SDL2
 - [x] Gravité et portance (Cl constant, force purement verticale)
-- [x] `Vec3` (dot, cross, normalize) et `Quaternion` (composition de rotations)
-- [ ] Rotation d'un `Vec3` par un `Quaternion` (`Quaternion::rotate`, en cours)
+- [x] `Vec3` (dot, cross, normalize) et `Quaternion` (composition de rotations, `rotate`)
 - [ ] AOA réel dérivé de l'orientation (quaternion) et du vecteur vitesse, remplaçant le `Cl` constant
 - [ ] Forces vectorielles 3D (actuellement scalaires sur un seul axe à la fois)
 - [ ] Dynamique angulaire (couple, moment d'inertie)

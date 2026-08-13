@@ -1,19 +1,14 @@
 TODO - Prochaines etapes physique
 ==================================
 
-1. Gravite
-   - Ajouter constante g (9.81 m/s2) en static const dans Simulator.h/.cpp (meme pattern que _timeScale/_tickTime)
-   - Ajouter setVerticalSpeed() dans AirplaneState (manquant actuellement, seul getVerticalSpeed existe)
-   - Ajouter computeVerticalSpeed() dans Simulator, appelee dans simLoop() comme computeGroundSpeed()
-   - Attention au signe : altitude augmente vers le haut, verticalSpeed doit diminuer sous l'effet de g
+1. [FAIT] Gravite
+   - g (9.81 m/s2) en static const dans Simulator, setVerticalSpeed() dans AirplaneState,
+     computeVerticalSpeed() appelee dans simLoop()
 
-2. Portance (lift)
-   - Formule a definir : 0.5 * RHO * v^2 * Cl * S (meme structure que le drag existant)
-   - Decider : Cl constant (ajouter _liftCoef dans AirplaneState) ou Cl derive de _AOA ?
-   - Decider : quelle vitesse utiliser (_groundSpeed vs _airSpeed) - revoir aussi computeGroundSpeed()
-     qui utilise _groundSpeed pour le drag, verifier si c'est coherent
-   - Simplification actuelle acceptee : portance purement verticale (pas de tangage/roulis encore)
-   - Integrer dans computeVerticalSpeed() : force nette = lift - poids
+2. [FAIT] Portance (lift)
+   - 0.5 * RHO * v_air^2 * Cl * S, Cl constant (_liftCoef), integree dans computeVerticalSpeed()
+     (force nette verticale = lift - poids)
+   - Simplification toujours en place : portance purement verticale (pas de tangage/roulis)
 
 3. AOA (_AOA)
    - Champ present dans AirplaneState mais non utilise nulle part

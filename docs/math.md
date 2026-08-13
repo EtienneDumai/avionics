@@ -68,7 +68,7 @@ Un quaternion de rotation encode l'angle en deux moitiés réparties entre `w` e
 
 Pour appliquer une rotation `q2` après une rotation `q1` :
 
-$$q_{résultat} = q_1 \times q_2$$
+$$q_{\text{résultat}} = q_1 \times q_2$$
 
 Formule avec `q1 = (w_1, x_1, y_1, z_1)` et `q2 = (w_2, x_2, y_2, z_2)` :
 
