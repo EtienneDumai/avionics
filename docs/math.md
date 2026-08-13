@@ -81,7 +81,7 @@ $$z = w_1 z_2 + x_1 y_2 - y_1 x_2 + z_1 w_2$$
 
 ### Rotation d'un vecteur
 
-> **⚠️ Pas encore implémentée** — `Vec3 rotate(const Vec3& v) const` est déclarée dans `Quaternion.h` mais son corps reste à écrire dans `Quaternion.cpp`.
+`Vec3 rotate(const Vec3& v) const` est implémentée dans `Quaternion.cpp`.
 
 Pour faire tourner un vecteur `v` par un quaternion de rotation `q` (unitaire), on transforme d'abord `v` en **quaternion pur** (partie scalaire nulle) :
 
@@ -98,6 +98,22 @@ Pour un quaternion **unitaire**, l'inverse est simplement le **conjugué** — p
 $$q^{-1} = \bar{q} = (w,\ -x,\ -y,\ -z)$$
 
 Les deux multiplications (`q × p` puis `× q⁻¹`) se font avec `multiply()`, déjà implémentée.
+
+### Convention d'axes : cap (heading) vs règle de la main droite
+
+Pour représenter le cap horizontal (yaw) en quaternion, on choisit un vecteur "avant" de référence — `Vec3(0, 1, 0)` (le nord, quand l'orientation est l'identité) — et un axe de rotation vertical.
+
+**Piège** : la règle de la main droite (convention mathématique standard des rotations, utilisée par `Quaternion(angle, axis)`) et la convention aéronautique du cap (qui augmente dans le sens des aiguilles d'une montre, vu du dessus, 0° = nord, 90° = est) tournent **en sens opposés** autour du même axe.
+
+Concrètement, avec l'axe `(0, 0, 1)` et un angle **positif** de `90°`, `rotate(Vec3(0,1,0))` donne `(-1, 0, 0)` — alors qu'un cap de `90°` (est) doit déplacer l'avion vers `+x`.
+
+Deux façons équivalentes de corriger ça :
+- garder l'axe `(0, 0, 1)` et **négativer l'angle** de cap à chaque construction du quaternion de yaw, ou
+- utiliser directement l'axe `(0, 0, -1)` comme axe vertical de référence pour le yaw, ce qui absorbe la correction une bonne fois pour toutes.
+
+Vérifié empiriquement : `Quaternion(-M_PI/2, &axis)` avec `axis = (0,0,1)` appliqué à `rotate(Vec3(0,1,0))` donne bien `(1, 0, 0)` — cohérent avec le comportement de l'ancien `_heading` (`sin(90°) = 1` sur `x`).
+
+À ne pas confondre avec l'axe vertical de **position** (altitude) : cet axe `(0,0,±1)` n'est qu'un repère de rotation pour le cap, il ne représente aucun déplacement en lui-même.
 
 ### Pourquoi les quaternions plutôt que les angles d'Euler ?
 
