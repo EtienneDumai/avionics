@@ -80,7 +80,7 @@ $$F_{vert} = F_{lift} - P \qquad a_{vert} = \frac{F_{vert}}{m} \qquad v_{vert} \
 
 Chaque `Engine` a un régime courant (`_engineRPM`, en %) qui converge vers un régime commandé (`_commandRPM`) à une vitesse `_spoolRate` par tick (`Engine::updateRPM()`) — modélise l'inertie mécanique d'un réacteur (le régime ne change pas instantanément).
 
-$$F_{\text{poussée}} = \begin{cases} \dfrac{RPM}{100} \times T_{max} & \text{si } RPM \le 100 \\[6pt] \dfrac{RPM}{100} \times T_{max} \times 1{,}25 & \text{si } RPM > 100 \end{cases}$$
+$$F_{\text{poussée}} = \begin{cases} \dfrac{RPM}{100} \times T_{max} & \text{si } RPM \le 100 \\ \dfrac{RPM}{100} \times T_{max} \times 1{,}25 & \text{si } RPM > 100 \end{cases}$$
 
 où `T_max` (`_maxThrust`) est la poussée maximale nominale (N). Le facteur `1,25` au-delà de 100 % modélise une plage de surrégime (type post-combustion/reheat).
 
