@@ -21,13 +21,14 @@ void Simulator::simLoop()
 {
     while (this->_simRunning)
     {
+        Vec3 forward = this->_airplane->getForward();
         this->computeGroundSpeed();
         this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
         this->computeVerticalSpeed();
-        this->_airplane->setYPos(this->_airplane->getYPos() + cos(this->_airplane->getHeading() * M_PI / 180) *
+        this->_airplane->setYPos(this->_airplane->getYPos() + forward.getY() *
                                                                   this->_airplane->getGroundSpeed() *
                                                                   (this->_timeScale));
-        this->_airplane->setXPos(this->_airplane->getXPos() + sin(this->_airplane->getHeading() * M_PI / 180) *
+        this->_airplane->setXPos(this->_airplane->getXPos() + forward.getX() *
                                                                   this->_airplane->getGroundSpeed() *
                                                                   (this->_timeScale));
         this->_airplane->setAltitude(this->_airplane->getAltitude() +

@@ -15,6 +15,7 @@ public:
     Quaternion(double x, double y, double z, double w);
     Quaternion(double angle, Vec3* axis);
     Quaternion(const Quaternion& copy);
+    Quaternion& operator=(const Quaternion& copy);
     Quaternion();
     ~Quaternion();
     double getX() const;

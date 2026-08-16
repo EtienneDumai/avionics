@@ -21,6 +21,15 @@ Quaternion::Quaternion(const Quaternion &copy){
     this->_z = copy._z;
     this->_w = copy._w;
 }
+Quaternion& Quaternion::operator=(const Quaternion& copy) {
+    if (this != &copy) {  // protection contre l'auto-affectation (q = q;)
+        _w = copy._w;
+        _x = copy._x;
+        _y = copy._y;
+        _z = copy._z;
+    }
+    return *this;  // permet le chaînage : a = b = c;
+}
 Quaternion::Quaternion(){
     this->_x = 0.0;
     this->_y = 0.0;

@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "../core/Engine/Engine.h"
+#include "../math/Quaternion/Quaternion.h"
+
 class AirplaneState
 {
 private:
@@ -18,7 +20,7 @@ private:
     double _groundSpeed;  // m/s
     double _verticalSpeed;// m/s
     double _AOA;          // °
-    double _heading;      // °
+    Quaternion _orientation;
     int _engineCount;
     int _masse;           // kg
     double _dragCoef;     // sans dimension (Cx)
@@ -28,9 +30,9 @@ private:
     std::mutex mutexAirplaneState;
 
 public:
-    AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed, double verticalSpeed,
-                  double AOA, double heading, int engineCount, EngineConfig newEngineConfig, int newMasse,
-                  double newDragCoef,  double newLiftCoef, double newSurface);
+    AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
+                    double verticalSpeed, double AOA, Quaternion orientation, int engineCount,
+                    EngineConfig newEngineConfig, int newMasse, double newDragCoef,  double newLiftCoef, double newSurface);
     AirplaneState(AirplaneState* airplane);
     ~AirplaneState();
     double getAltitude();
@@ -40,6 +42,8 @@ public:
     double getGroundSpeed();
     double getVerticalSpeed();
     double getAOA();
+    Vec3 getForward();
+    Quaternion getOrientation();
     double getHeading();
     double getEngineRPM(int index);
     int getEnginesCount();
