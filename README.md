@@ -39,7 +39,7 @@ src/
     └── Window/         # Fenêtre SDL2
 ```
 
-> `math/` n'est pas encore branché dans `AirplaneState` (toujours un cap scalaire `_heading` en degrés) — voir `docs/math.md` et la roadmap.
+> `math/` est branché dans `AirplaneState` : l'orientation (`_orientation`, `Quaternion`) remplace l'ancien cap scalaire `_heading` — voir `docs/math.md` et la roadmap.
 
 **Flux de données :**
 ```
@@ -58,7 +58,7 @@ src/
 - **Gravité** : intégrée à la vitesse verticale (`g = 9.81 m/s²`), combinée à la portance pour la force nette
 - **Vitesse indiquée (IAS)** : calculée depuis la vitesse sol et l'altitude
 - **Poussée moteur** : modélisée avec un spool rate (inertie de montée en régime) — **pas encore branchée** dans la boucle de simulation (`Engine::updateRPM()`/`setState()` ne sont jamais appelées), donc la poussée totale reste nulle en l'état
-- **Position** : intégration cap + vitesse sol → coordonnées X/Y ; altitude intégrée depuis la vitesse verticale
+- **Position** : intégration vecteur avant (dérivé de l'orientation quaternion) + vitesse sol → coordonnées X/Y ; altitude intégrée depuis la vitesse verticale
 
 > Détail des équations et de l'ordre exact des appels dans `simLoop()` : voir `docs/simulator.md`. Pour `Vec3`/`Quaternion` : `docs/math.md`.
 
@@ -110,7 +110,7 @@ AirplaneState airplane(
     175,          // vitesse sol initiale (m/s)
     0,            // vitesse verticale (m/s)
     0,            // angle d'attaque (°)
-    0,            // cap (°)
+    Quaternion(), // orientation initiale (identité)
     1,            // nombre de moteurs
     {0.2, 15000}, // spool rate, poussée max (N)
     70000,        // masse (kg)
@@ -129,6 +129,7 @@ AirplaneState airplane(
 - [x] Affichage SDL2
 - [x] Gravité et portance (Cl constant, force purement verticale)
 - [x] `Vec3` (dot, cross, normalize) et `Quaternion` (composition de rotations, `rotate`)
+- [x] Orientation quaternion intégrée dans `AirplaneState` (`_orientation` remplace `_heading`), position dérivée du vecteur avant (`getForward()`)
 - [ ] AOA réel dérivé de l'orientation (quaternion) et du vecteur vitesse, remplaçant le `Cl` constant
 - [ ] Forces vectorielles 3D (actuellement scalaires sur un seul axe à la fois)
 - [ ] Dynamique angulaire (couple, moment d'inertie)

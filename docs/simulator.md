@@ -92,11 +92,13 @@ Un moteur à l'arrêt (`_state = false`) produit une poussée nulle, quel que so
 
 ## Position
 
-Intégration de la position à partir du cap (`_heading`, en degrés) et de la vitesse sol :
+Intégration de la position à partir du **vecteur avant** (`AirplaneState::getForward()`, dérivé de l'orientation `_orientation` en `Quaternion`) et de la vitesse sol :
 
-$$x \mathrel{+}= \sin(\theta) \, v_{sol} \, \Delta t \qquad y \mathrel{+}= \cos(\theta) \, v_{sol} \, \Delta t$$
+$$x \mathrel{+}= forward_x \, v_{sol} \, \Delta t \qquad y \mathrel{+}= forward_y \, v_{sol} \, \Delta t$$
 
-avec `θ = heading × π / 180` (conversion degrés → radians). Convention : cap 0° pointe selon `+y`, cap 90° selon `+x` (repère type boussole, pas trigonométrique standard).
+`getForward()` applique la rotation `_orientation` au vecteur de référence `(0,1,0)` (voir `docs/math.md`, section « Rotation d'un vecteur »). Plus de conversion degrés/radians ni de `cos`/`sin` explicites dans `simLoop()` — le vecteur avant est calculé une fois par tick et réutilisé pour `xPos` et `yPos`.
+
+`AirplaneState::getHeading()` reste disponible pour l'affichage (`Window`, `Display`) mais est désormais **dérivée** du vecteur avant : `atan2(forward.x, forward.y) × 180/π`, plutôt qu'un champ `_heading` stocké séparément. Voir `docs/math.md` (section « Convention d'axes ») pour le piège main droite / cap aéronautique à respecter quand on construira une orientation depuis un cap commandé.
 
 L'altitude s'intègre directement depuis la vitesse verticale :
 
@@ -111,7 +113,7 @@ Ordre exact des opérations dans `Simulator::simLoop()`, à chaque itération (~
 1. **`computeGroundSpeed()`** — traînée (fonction de `v_sol` courante) → nouvelle `v_sol`
 2. **`computeIAS(v_sol)`** — recalcule `v_air` à partir de la `v_sol` **fraîchement mise à jour** à l'étape 1
 3. **`computeVerticalSpeed()`** — portance (fonction de `v_air` **fraîchement mise à jour** à l'étape 2) et poids → nouvelle `v_vert`
-4. **Position** : `yPos`, `xPos` mis à jour à partir de `heading` et `v_sol` (étape 1)
+4. **Position** : `yPos`, `xPos` mis à jour à partir du vecteur avant (`getForward()`, dérivé de `_orientation`) et `v_sol` (étape 1)
 5. **Altitude** : mise à jour à partir de `v_vert` (étape 3)
 6. `sleep(_tickTime)` avant le prochain tick
 
@@ -124,5 +126,6 @@ L'ordre est important : chaque grandeur dérivée (IAS, portance, position) util
 Le schéma utilisé est un **Euler explicite/semi-implicite simple** à pas fixe (`Δt = 16 ms`). Suffisant pour l'instant, mais :
 
 - Pas de gestion de sol/plancher : sans portance suffisante, l'altitude peut devenir négative (l'avion « tombe » indéfiniment).
-- Toutes les forces sont scalaires, appliquées sur un seul axe à la fois (`v_sol` longitudinal, `v_vert` vertical) — pas encore de forces vectorielles 3D combinées (voir `docs/math.md` pour l'infrastructure `Quaternion`/`Vec3` prévue à cet effet, pas encore branchée dans `AirplaneState`).
+- Toutes les forces sont scalaires, appliquées sur un seul axe à la fois (`v_sol` longitudinal, `v_vert` vertical) — pas encore de forces vectorielles 3D combinées. L'orientation (`_orientation`, `Quaternion`) est branchée dans `AirplaneState` et pilote la position, mais la portance/traînée restent scalaires ; voir `docs/math.md` et `todo.txt` étape 5.
+- `_AOA` existe dans `AirplaneState` mais n'est toujours pas calculé ni utilisé — prochaine étape prévue : le dériver de l'angle entre le vecteur avant (`getForward()`) et le vecteur vitesse, pour obtenir un `Cl` dynamique au lieu de la constante `_liftCoef` actuelle.
 - Si les forces deviennent grandes (par ex. `Cl` mal calibré), un pas de temps fixe en Euler simple peut accumuler de l'erreur plus vite qu'un schéma d'ordre supérieur (RK4) — à surveiller si des instabilités apparaissent.

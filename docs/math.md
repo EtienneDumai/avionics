@@ -121,7 +121,7 @@ Les angles d'Euler (pitch, roll, yaw séparés) souffrent du **gimbal lock** : q
 
 Les quaternions représentent une rotation comme un **axe + un angle** et composent les rotations par multiplication — pas de singularité, pas de gimbal lock.
 
-### Flux d'utilisation prévu
+### Flux d'utilisation
 
 ```
 orientation (Quaternion)
@@ -129,7 +129,9 @@ orientation (Quaternion)
     → vitesse_monde = airspeed × vecteur_avant
 ```
 
-Pour appliquer du pitch/yaw/roll à chaque frame :
+**Implémenté** : `AirplaneState` stocke désormais `_orientation` (`Quaternion`, remplace l'ancien `_heading` scalaire). `AirplaneState::getForward()` applique `_orientation.rotate(Vec3(0,1,0))`, et `Simulator::simLoop()` s'en sert directement pour intégrer `xPos`/`yPos` (plus de `cos`/`sin` d'un angle). `getHeading()` existe toujours pour l'affichage (`Window`/`Display`), mais elle est désormais **dérivée** : `atan2(forward.x, forward.y)` sur le vecteur avant plutôt qu'un champ stocké.
+
+Pour appliquer du pitch/yaw/roll à chaque frame (**pas encore fait** — nécessite une commande pilote et une vitesse angulaire, voir `todo.txt` étape 6) :
 
 ```
 Quaternion delta = Quaternion(anglePitch, axePitch);

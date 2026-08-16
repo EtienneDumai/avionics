@@ -10,16 +10,23 @@ TODO - Prochaines etapes physique
      (force nette verticale = lift - poids)
    - Simplification toujours en place : portance purement verticale (pas de tangage/roulis)
 
-3. AOA (_AOA)
+3. AOA (_AOA) - EN COURS, prochaine session
    - Champ present dans AirplaneState mais non utilise nulle part
-   - Decider si AOA sert a calculer Cl (etape 2) et comment il est alimente
-     (input pilote ? derive de l'orientation vs vecteur vitesse ?)
+   - Decision : AOA = angle entre le vecteur avant (getForward(), dispo depuis l'etape 4)
+     et le vecteur vitesse (air), pour obtenir un Cl dynamique au lieu de la constante
+     _liftCoef actuelle
+   - Reste a faire : vecteur vitesse en Vec3 (actuellement _airSpeed est un scalaire),
+     angle via dot product (Vec3::dot deja dispo), Cl lineaire en fonction de cet angle
 
-4. Orientation 3D (quaternion)
-   - Quaternion/Vec3 complets mais non branches dans AirplaneState (toujours _heading en degres, yaw seul)
-   - Ajouter methode pour extraire le vecteur avant (forward) depuis le quaternion
-   - Remplacer _heading (et a terme _AOA) par une orientation quaternion complete dans AirplaneState
-   - Necessaire pour calculer une vraie portance perpendiculaire au flux d'air (pas juste verticale)
+4. [FAIT] Orientation 3D (quaternion)
+   - Quaternion/Vec3 complets, branches dans AirplaneState : _heading (double) remplace
+     par _orientation (Quaternion)
+   - AirplaneState::getForward() ajoutee (rotate((0,1,0)) sur _orientation)
+   - AirplaneState::getHeading() conservee pour l'affichage mais desormais derivee
+     (atan2 sur getForward()) plutot que stockee
+   - Simulator::simLoop() utilise getForward() au lieu de cos/sin(heading) pour xPos/yPos
+   - Bug rencontre et corrige : Quaternion avait un constructeur de copie custom sans
+     operator= associe (regle des trois, -Werror=deprecated-copy) -> operator= ajoute
 
 5. Forces vectorielles
    - Actuellement tout est scalaire (F_DRAG, F_NETTE le long d'un seul axe)

@@ -15,14 +15,15 @@ classDiagram
     Display "1" --> "1" AirplaneState : affiche
     Window ..> DataColor : construit
     AirplaneState "1" *-- "0..*" Engine : possède
+    AirplaneState "1" *-- "1" Quaternion : orientation
     AirplaneState ..> EngineConfig : construit depuis
-    Quaternion ..> Vec3 : construit depuis (axe)
+    Quaternion ..> Vec3 : construit depuis (axe), rotate()
 ```
 
 - `Simulator`, `Window` et `Display` détiennent chacun un **pointeur** (non-propriétaire) vers un unique `AirplaneState` partagé — l'état central protégé par mutex, lu/écrit depuis plusieurs threads.
-- `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée).
+- `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée) et son `Quaternion` d'orientation (`_orientation`, remplace l'ancien `_heading` scalaire).
 - `EngineConfig` et `DataColor` sont de simples structs (pas de logique), utilisés respectivement pour construire les moteurs et pour transporter texte+couleur à afficher dans `Window`.
-- `Vec3`/`Quaternion` ne sont pas encore branchés dans `AirplaneState` (voir `docs/math.md`, section « Flux d'utilisation prévu »).
+- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation/position (`getForward()`, `getOrientation()`) — voir `docs/math.md`, section « Flux d'utilisation ». Pas encore utilisés pour les forces (traînée/portance restent scalaires).
 
 ---
 
@@ -38,7 +39,7 @@ classDiagram
         -double _groundSpeed
         -double _verticalSpeed
         -double _AOA
-        -double _heading
+        -Quaternion _orientation
         -int _engineCount
         -int _masse
         -double _dragCoef
@@ -46,7 +47,7 @@ classDiagram
         -double _surface
         -vector~unique_ptr~Engine~~ _engines
         -mutex mutexAirplaneState
-        +AirplaneState(altitude, xPos, yPos, airSpeed, groundSpeed, verticalSpeed, AOA, heading, engineCount, EngineConfig, masse, dragCoef, liftCoef, surface)
+        +AirplaneState(altitude, xPos, yPos, airSpeed, groundSpeed, verticalSpeed, AOA, orientation, engineCount, EngineConfig, masse, dragCoef, liftCoef, surface)
         +AirplaneState(AirplaneState* airplane)
         +getAltitude() double
         +getXPos() double
@@ -55,6 +56,8 @@ classDiagram
         +getGroundSpeed() double
         +getVerticalSpeed() double
         +getAOA() double
+        +getForward() Vec3
+        +getOrientation() Quaternion
         +getHeading() double
         +getEngineRPM(int index) double
         +getEnginesCount() int
@@ -212,6 +215,7 @@ classDiagram
         +Quaternion(angle, Vec3* axis)
         +Quaternion(const Quaternion&)
         +Quaternion()
+        +operator=(const Quaternion&) Quaternion&
         +getX() double
         +getY() double
         +getZ() double
@@ -227,6 +231,6 @@ classDiagram
 
 ---
 - `Simulator`, `Window` et `Display` détiennent chacun un **pointeur** (non-propriétaire) vers un unique `AirplaneState` partagé — c'est l'état central protégé par mutex, lu/écrit depuis plusieurs threads.
-- `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée).
+- `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée) et son `Quaternion` d'orientation (`_orientation`).
 - `EngineConfig` et `DataColor` sont de simples structs (pas de logique), utilisés respectivement pour construire les moteurs et pour transporter texte+couleur à afficher dans `Window`.
-- `Vec3`/`Quaternion` ne sont pas encore branchés dans `AirplaneState` (voir `docs/math.md`, section « Flux d'utilisation prévu »).
+- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation/position — voir `docs/math.md`, section « Flux d'utilisation ».
