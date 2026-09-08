@@ -24,6 +24,8 @@ void Simulator::simLoop()
         Vec3 forward = this->_airplane->getForward();
         this->computeGroundSpeed();
         this->_airplane->computeIAS(this->_airplane->getGroundSpeed());
+        this->_airplane->computeAOA(forward, Vec3(forward.getX()*this->_airplane->getGroundSpeed(),
+            forward.getY()*this->_airplane->getGroundSpeed(), this->_airplane->getVerticalSpeed()));
         this->computeVerticalSpeed();
         this->_airplane->setYPos(this->_airplane->getYPos() + forward.getY() *
                                                                   this->_airplane->getGroundSpeed() *
@@ -59,7 +61,7 @@ void Simulator::computeGroundSpeed()
 void Simulator::computeVerticalSpeed()
 {
     const double F_LIFT = 0.5 * this->computeAirDensity(this->_airplane->getAltitude()) *
-                          pow(this->_airplane->getAirSpeed(), 2) * this->_airplane->getLiftCoef() *
+                          pow(this->_airplane->getAirSpeed(), 2) * (this->_airplane->getLiftCoef()*this->_airplane->getAOA()) *
                           this->_airplane->getSurface();
     const double WEIGHT = this->_airplane->getMasse() * this->_g;
     const double F_VERTICAL_NETTE = F_LIFT - WEIGHT;

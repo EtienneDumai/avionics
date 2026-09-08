@@ -1,5 +1,6 @@
 #include "AirplaneState.h"
 
+#include <cmath>
 #include <mutex>
 
 AirplaneState::AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
@@ -190,8 +191,20 @@ void AirplaneState::setVerticalSpeed(double newVerticalSpeed)
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     this->_verticalSpeed = newVerticalSpeed;
 }
-
+void AirplaneState::setAOA(double newAOA){
+    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
+    this->_AOA = newAOA;
+}
 void AirplaneState::computeIAS(double groundSpeed)
 {
     this->_airSpeed = groundSpeed * pow((1 - 0.0065 * this->_altitude / 288.15), 2.128);
+}
+void AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec){
+    Vec3 fVec = forwardVec.normalize();
+    Vec3 vVec = velocityVec.normalize();
+    double angle = std::acos(fVec.dot(vVec))*180/M_PI;
+    if(fVec.getZ() < vVec.getZ()){
+        angle = -angle;
+    }
+    this->setAOA(angle);
 }

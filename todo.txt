@@ -10,13 +10,33 @@ TODO - Prochaines etapes physique
      (force nette verticale = lift - poids)
    - Simplification toujours en place : portance purement verticale (pas de tangage/roulis)
 
-3. AOA (_AOA) - EN COURS, prochaine session
-   - Champ present dans AirplaneState mais non utilise nulle part
-   - Decision : AOA = angle entre le vecteur avant (getForward(), dispo depuis l'etape 4)
-     et le vecteur vitesse (air), pour obtenir un Cl dynamique au lieu de la constante
-     _liftCoef actuelle
-   - Reste a faire : vecteur vitesse en Vec3 (actuellement _airSpeed est un scalaire),
-     angle via dot product (Vec3::dot deja dispo), Cl lineaire en fonction de cet angle
+3. [FAIT] AOA (_AOA) et Cl dynamique
+   - AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec) ajoutee (meme pattern que
+     computeIAS : void, parametres externes plutot que lecture interne, pour la testabilite)
+   - Vecteur vitesse reconstruit dans Simulator::simLoop() a partir des memes morceaux que
+     l'integration de position : (forward.getX()*groundSpeed, forward.getY()*groundSpeed, verticalSpeed)
+   - Angle (magnitude) : normalize() sur les deux vecteurs, puis acos(dot()) * 180/PI
+   - Signe : simplification choisie (pas de roulis modelise) - comparaison des composantes Z
+     des vecteurs normalises plutot qu'un vrai axe lateral (voir idee reportee ci-dessous) :
+     fVec.getZ() < vVec.getZ() -> nez plus bas que la trajectoire -> AOA negatif
+   - computeAOA() appelee dans simLoop() AVANT computeVerticalSpeed() (important : Cl dans
+     computeVerticalSpeed() a besoin de l'AOA fraiche de ce tick, pas celle du tick precedent).
+     Consequence acceptee : l'AOA de ce tick utilise le _verticalSpeed du tick precedent
+     (computeVerticalSpeed() n'a pas encore tourne) - meme genre de decalage Euler que le
+     reste de la boucle, pas juge bloquant pour l'instant
+   - Cl derive lineairement de l'AOA : Cl = _liftCoef * AOA (pas de Cl0/ordonnee a l'origine),
+     branche directement dans F_LIFT (Simulator::computeVerticalSpeed())
+   - Consequence a garder en tete : _liftCoef n'est plus un Cl constant, c'est desormais une
+     pente (Cl par degre d'AOA) - la valeur actuelle dans main.cpp (calibree comme un Cl fixe
+     genre ~0.03) n'a plus le bon ordre de grandeur pour ce role, a recalibrer en meme temps
+     que les autres valeurs bidon de main.cpp (masse/surface, voir etape 2/README)
+
+3bis. Ameliorations futures identifiees, pas urgentes
+   - AOA : remplacer la comparaison des Z (approximation) par un vrai angle signe via
+     atan2((a x b)·n, a·b) avec un axe lateral de reference n (necessite un getRight() sur
+     AirplaneState, ou cross(forward, up)) - plus robuste si le roulis est modelise un jour
+   - Decorreler l'AOA/Cl d'un roulis nul : actuellement la simplification suppose implicitement
+     qu'on reste dans un plan vertical (pas de sideslip/angle beta modelise)
 
 4. [FAIT] Orientation 3D (quaternion)
    - Quaternion/Vec3 complets, branches dans AirplaneState : _heading (double) remplace

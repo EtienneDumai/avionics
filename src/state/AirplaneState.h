@@ -57,6 +57,8 @@ public:
     void setYPos(double newYPos);
     void setVerticalSpeed(double newVerticalSpeed);
     void setGroundSpeed(double newGroundSpeed);
+    void setAOA(double newAOA);
     void computeIAS(double groundSpeed);
+    void computeAOA(Vec3 forwardVec, Vec3 velocityVec);
 };
 #endif
