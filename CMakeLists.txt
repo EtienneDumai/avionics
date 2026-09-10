@@ -23,6 +23,7 @@ if(WIN32)
     # Nécessite SDL2 et SDL2_ttf compilées en statique (triplet vcpkg
     # x64-windows-static, voir instructions plus bas).
     file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
+    list(FILTER APP_SOURCES EXCLUDE REGEX "/test/")
 
     add_executable(avionics ${APP_SOURCES})
     target_compile_options(avionics PRIVATE -Wall -Wextra)

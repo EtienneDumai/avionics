@@ -9,8 +9,9 @@ TARGET = avionics
 
 # Linker pour les libs
 LDLIBS = -lSDL2 -lSDL2_ttf
-# Fichiers sources
-SRCS = $(shell find src -type f -name "*.cpp")
+# Fichiers sources (exclut src/test/ : ce sont les sources des tests
+# GoogleTest, compilées séparément par CMake, pas par ce Makefile)
+SRCS = $(shell find src -type f -name "*.cpp" -not -path "src/test/*")
 
 # Fichiers objets (remplace .cpp par .o)
 OBJS = $(SRCS:.cpp=.o)
@@ -27,6 +28,6 @@ $(TARGET): $(OBJS)
 clean:
 	rm -f $(OBJS) $(TARGET)
 
-print: 
+print:
 	@echo "SRCS = $(SRCS)"
 	@echo "OBJS = $(OBJS)"
