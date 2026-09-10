@@ -24,6 +24,7 @@ Le résultat est un scalaire (pas un vecteur). Géométriquement, `u · v = ‖u
 
 Utilité principale : mesurer à quel point deux vecteurs pointent dans la même direction (positif = même sens, négatif = sens opposés, nul = perpendiculaires). Sert de brique pour calculer un angle entre deux vecteurs (ex : angle d'attaque entre le vecteur avant de l'avion et le vecteur vitesse).
 
+
 ### Produit vectoriel (cross product)
 
 $$u \wedge v = \begin{pmatrix} u_y v_z - u_z v_y \\ u_z v_x - u_x v_z \\ u_x v_y - u_y v_x \end{pmatrix}$$
