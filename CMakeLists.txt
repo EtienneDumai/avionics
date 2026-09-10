@@ -26,7 +26,16 @@ if(WIN32)
     list(FILTER APP_SOURCES EXCLUDE REGEX "/test/")
 
     add_executable(avionics ${APP_SOURCES})
-    target_compile_options(avionics PRIVATE -Wall -Wextra)
+
+    # -Wall -Wextra sont des flags GCC/Clang : sous MSVC (cl.exe, le
+    # compilateur utilisé avec le générateur Visual Studio), ils sont
+    # mal interprétés (cl traite "-" comme "/", d'où l'erreur D8021).
+    # /W4 est l'équivalent MSVC le plus proche.
+    if(MSVC)
+        target_compile_options(avionics PRIVATE /W4)
+    else()
+        target_compile_options(avionics PRIVATE -Wall -Wextra)
+    endif()
 
     # Force le runtime MSVC statique (/MT) pour ne dépendre d'aucune
     # vcruntime*.dll / msvcp*.dll non plus.
