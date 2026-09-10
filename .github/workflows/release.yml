@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write  # nécessaire pour que le job "release" puisse créer la Release GitHub
+
+jobs:
+  build-linux:
+    name: Build Linux (Makefile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer les dépendances
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
+
+      - name: Compiler (lien statique SDL2/SDL2_ttf)
+        run: |
+          make clean
+          make release
+
+      - name: Empaqueter
+        run: |
+          mkdir avionics-linux
+          cp avionics avionics-linux/
+          cp -r assets avionics-linux/
+          tar -czvf avionics-linux.tar.gz avionics-linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: avionics-linux
+          path: avionics-linux.tar.gz
+
+  build-windows:
+    name: Build Windows (CMake + vcpkg statique)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cloner vcpkg
+        run: git clone https://github.com/microsoft/vcpkg
+
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+
+      # Sans cache, réinstaller SDL2/SDL2_ttf en statique prend
+      # plusieurs minutes à chaque run -- le cache évite de recompiler
+      # les libs C++ tant que rien n'a changé côté dépendances.
+      - name: Cache des paquets vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg/installed
+          key: vcpkg-windows-static-sdl2
+
+      - name: Installer SDL2 / SDL2_ttf (statique)
+        run: .\vcpkg\vcpkg.exe install sdl2:x64-windows-static sdl2-ttf:x64-windows-static
+
+      - name: Configurer et compiler
+        run: |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          cmake --build build --config Release --target avionics
+
+      - name: Empaqueter
+        run: |
+          mkdir avionics-windows
+          copy build\Release\avionics.exe avionics-windows\
+          xcopy /E /I assets avionics-windows\assets
+          Compress-Archive -Path avionics-windows\* -DestinationPath avionics-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: avionics-windows
+          path: avionics-windows.zip
+
+  release:
+    name: Publier la Release GitHub
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer les binaires compilés
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Créer la Release et y attacher les archives
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/avionics-linux/avionics-linux.tar.gz
+            dist/avionics-windows/avionics-windows.zip
+          generate_release_notes: true
