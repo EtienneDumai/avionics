@@ -62,8 +62,11 @@ jobs:
         run: .\vcpkg\vcpkg.exe install sdl2:x64-windows-static sdl2-ttf:x64-windows-static
 
       - name: Configurer et compiler
+        shell: bash
         run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static
           cmake --build build --config Release --target avionics
 
       - name: Empaqueter
