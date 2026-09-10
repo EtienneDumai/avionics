@@ -61,6 +61,13 @@ jobs:
       - name: Installer SDL2 / SDL2_ttf (statique)
         run: .\vcpkg\vcpkg.exe install sdl2:x64-windows-static sdl2-ttf:x64-windows-static
 
+      - name: Debug -- vérifier que le toolchain vcpkg existe
+        shell: bash
+        run: |
+          echo "Contenu de vcpkg/scripts/buildsystems/ :"
+          ls -la vcpkg/scripts/buildsystems/ || echo "DOSSIER INTROUVABLE"
+          test -f vcpkg/scripts/buildsystems/vcpkg.cmake && echo "OK : vcpkg.cmake présent" || echo "MANQUANT : vcpkg.cmake absent"
+
       - name: Configurer et compiler
         shell: bash
         run: |
