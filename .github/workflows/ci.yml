@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+jobs:
+  build-makefile:
+    name: Build (Makefile, flags inchangés)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer les dépendances (SDL2)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libsdl2-ttf-dev
+
+      # On appelle directement `make`, pas de flag ajouté par la CI :
+      # les seuls flags actifs sont ceux déjà écrits dans le Makefile
+      # (-Wall -Wextra -Werror -std=c++20). Si un warning apparaît,
+      # -Werror le transforme en erreur de build et le job échoue.
+      - name: make clean && make
+        run: |
+          make clean
+          make
+
+  unit-tests:
+    name: Tests unitaires (GoogleTest via CMake)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurer CMake
+        run: cmake -S . -B build
+
+      # Cible unit_tests uniquement : ne déclenche pas la cible
+      # `avionics` (celle qui délègue au Makefile et a besoin de SDL2),
+      # donc aucune dépendance SDL2 nécessaire pour ce job.
+      - name: Compiler les tests
+        run: cmake --build build --target unit_tests
+
+      - name: Lancer les tests
+        working-directory: build
+        run: ctest --output-on-failure

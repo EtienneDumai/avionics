@@ -40,6 +40,11 @@ void Simulator::simLoop()
 }
 void Simulator::startSim()
 {
+    if (this->_simThread.joinable())
+    {
+        this->_simRunning = false;
+        this->_simThread.join();
+    }
     this->_simRunning = true;
     this->_simThread = std::thread(&Simulator::simLoop, this);
 }
@@ -47,7 +52,10 @@ void Simulator::startSim()
 void Simulator::stopSim()
 {
     this->_simRunning = false;
-    this->_simThread.join();
+    if (this->_simThread.joinable())
+    {
+        this->_simThread.join();
+    }
 }
 void Simulator::computeGroundSpeed()
 {

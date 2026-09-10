@@ -99,7 +99,9 @@ if(BUILD_TESTING AND EXISTS ${CMAKE_SOURCE_DIR}/src/test)
 
     add_executable(unit_tests ${CORE_SOURCES} ${TEST_SOURCES})
     target_include_directories(unit_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-    target_link_libraries(unit_tests PRIVATE gtest_main)
+
+    find_package(Threads REQUIRED)
+    target_link_libraries(unit_tests PRIVATE gtest_main Threads::Threads)
 
     gtest_discover_tests(unit_tests)
 endif()
