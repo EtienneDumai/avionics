@@ -34,7 +34,7 @@ if(WIN32)
 
     # Variantes statiques exposées par vcpkg avec le triplet *-static
     find_package(SDL2 CONFIG REQUIRED)
-    find_package(sdl2-ttf CONFIG REQUIRED)
+    find_package(SDL2_ttf CONFIG REQUIRED)
 
     target_link_libraries(avionics PRIVATE
         SDL2::SDL2-static
