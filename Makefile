@@ -18,7 +18,7 @@ OBJS = $(SRCS:.cpp=.o)
 
 # Règle principale
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $(TARGET) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
 
 # Compilation des .cpp en .o
 %.o: %.cpp
