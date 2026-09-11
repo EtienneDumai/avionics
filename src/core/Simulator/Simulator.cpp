@@ -35,6 +35,10 @@ void Simulator::simLoop()
                                                                   (this->_timeScale));
         this->_airplane->setAltitude(this->_airplane->getAltitude() +
                                      this->_airplane->getVerticalSpeed() * this->_timeScale);
+        if(this->_airplane->getAltitude() < 0 && this->_simThread.joinable())
+        {
+            this->stopSim();
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(this->getTickTime()));
     }
 }
