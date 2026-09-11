@@ -19,6 +19,27 @@ Vec3::Vec3()
     this->_z = 0.0;
 }
 Vec3::~Vec3() {}
+Vec3& Vec3::operator+(const double k)
+{
+    this->_x += k;
+    this->_y += k;
+    this->_z += k;
+    return *this;
+}
+Vec3& Vec3::operator-(const double k)
+{
+    this->_x -= k;
+    this->_y -= k;
+    this->_z -= k;
+    return *this;
+}
+Vec3& Vec3::operator*(const double k)
+{
+    this->_x *= k;
+    this->_y *= k;
+    this->_z *= k;
+    return *this;
+}
 double Vec3::getX() const { return this->_x; }
 double Vec3::getY() const { return this->_y; }
 double Vec3::getZ() const { return this->_z; }

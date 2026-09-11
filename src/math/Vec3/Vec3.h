@@ -13,6 +13,9 @@ public:
     Vec3(const Vec3& newVec3);
     Vec3();
     ~Vec3();
+    Vec3& operator+(const double k);
+    Vec3& operator-(const double k);
+    Vec3& operator*(const double k);
     double getX() const;
     double getY() const;
     double getZ() const;
