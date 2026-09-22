@@ -19,25 +19,31 @@ Vec3::Vec3()
     this->_z = 0.0;
 }
 Vec3::~Vec3() {}
-Vec3& Vec3::operator+(const double k)
+Vec3 Vec3::operator+(const Vec3& v) const
 {
+    return Vec3(this->_x + v.getX(), this->_y + v.getY(), this->_z + v.getZ());
+}
+Vec3 Vec3::operator-(const Vec3& v) const
+{
+    return Vec3(this->_x - v.getX(), this->_y - v.getY(), this->_z - v.getZ());
+}
+Vec3 Vec3::operator+(double k) const
+{
+    return Vec3(this->_x + k, this->_y + k, this->_z + k);
+}
+Vec3 Vec3::operator-(double k)const
+{
+    return Vec3(this->_x - k, this->_y - k, this->_z - k);
+
+}
+Vec3 Vec3::operator*(double k)const
+{
+    return Vec3(this->_x * k, this->_y * k, this->_z * k);
+}
+Vec3& Vec3::operator+=(const double k){
     this->_x += k;
     this->_y += k;
     this->_z += k;
-    return *this;
-}
-Vec3& Vec3::operator-(const double k)
-{
-    this->_x -= k;
-    this->_y -= k;
-    this->_z -= k;
-    return *this;
-}
-Vec3& Vec3::operator*(const double k)
-{
-    this->_x *= k;
-    this->_y *= k;
-    this->_z *= k;
     return *this;
 }
 double Vec3::getX() const { return this->_x; }
