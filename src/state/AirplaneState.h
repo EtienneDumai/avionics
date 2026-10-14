@@ -37,9 +37,12 @@ public:
     double getXPos();
     double getYPos();
     double getAirSpeed();
+    double getGroundSpeed();
+    double getVerticalSpeed();
     Vec3 getVelocity();
     double getAOA();
     Vec3 getForward();
+    Vec3 getRight();
     Quaternion getOrientation();
     double getHeading();
     double getEngineRPM(int index);
@@ -55,6 +58,6 @@ public:
     void setVelocity(Vec3 newVelocity);
     void setAOA(double newAOA);
     void computeIAS(double groundSpeed);
-    void computeAOA(Vec3 forwardVec, Vec3 velocityVec);
+    void computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right);
 };
 #endif

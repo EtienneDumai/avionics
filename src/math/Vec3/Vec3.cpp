@@ -1,17 +1,11 @@
 #include "Vec3.h"
-#include <exception>
 Vec3::Vec3(double newX, double newY, double newZ)
 {
     this->_x = newX;
     this->_y = newY;
     this->_z = newZ;
 }
-Vec3::Vec3(const Vec3& newVec3)
-{
-    this->_x = newVec3.getX();
-    this->_y = newVec3.getY();
-    this->_z = newVec3.getZ();
-}
+
 Vec3::Vec3()
 {
     // Vecteur nul
@@ -23,6 +17,13 @@ Vec3::~Vec3() {}
 Vec3 Vec3::operator+(const Vec3& v) const
 {
     return Vec3(this->_x + v.getX(), this->_y + v.getY(), this->_z + v.getZ());
+}
+Vec3& Vec3::operator+=(const Vec3& v){
+
+    this->_x += v.getX();
+    this->_y += v.getY();
+    this->_z += v.getZ();
+    return *this;
 }
 Vec3 Vec3::operator-(const Vec3& v) const
 {
@@ -46,6 +47,9 @@ Vec3& Vec3::operator+=(const double k){
     this->_y += k;
     this->_z += k;
     return *this;
+}
+Vec3 Vec3::operator-()const{
+    return Vec3(-_x, -_y, -_z);
 }
 Vec3 Vec3::operator/(double k) const {
     if (k == 0) {

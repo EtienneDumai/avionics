@@ -88,6 +88,12 @@ Vec3 AirplaneState::getForward()
     return this->_orientation.rotate(Vec3(0, 1, 0));
 }
 
+Vec3 AirplaneState::getRight()
+{
+    std::lock_guard<std::mutex> lock(mutexAirplaneState);
+    return _orientation.rotate(Vec3(1, 0, 0));   // x × y = z → (right, forward, up) direct
+}
+
 Quaternion AirplaneState::getOrientation()
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
@@ -183,12 +189,20 @@ void AirplaneState::computeIAS(double groundSpeed)
 {
     this->_airSpeed = groundSpeed * pow((1 - 0.0065 * this->_altitude / 288.15), 2.128);
 }
-void AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec){
-    Vec3 fVec = forwardVec.normalize();
-    Vec3 vVec = velocityVec.normalize();
-    double angle = std::acos(fVec.dot(vVec))*180/M_PI;
-    if(fVec.getZ() < vVec.getZ()){
-        angle = -angle;
-    }
+void AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right)
+{
+    Vec3 f = forwardVec.normalize();
+    Vec3 v = velocityVec.normalize();
+    // sin(angle) signé par l'axe latéral, cos(angle) par le produit scalaire
+    double angle = std::atan2(v.cross(f).dot(right), v.dot(f)) * 180.0 / M_PI;
     this->setAOA(angle);
+}
+double AirplaneState::getGroundSpeed()
+{
+    Vec3 v = getVelocity();
+    return std::sqrt(v.getX() * v.getX() + v.getY() * v.getY());
+}
+double AirplaneState::getVerticalSpeed()
+{
+    return getVelocity().getZ();
 }

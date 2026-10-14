@@ -19,9 +19,11 @@ private:
 
     // Méthodes
     void simLoop();
-    void computeGroundSpeed();
-    void computeVerticalSpeed();
     double computeAirDensity(double altitude);
+    Vec3 computeThrust(const Vec3& forward);
+    Vec3 computeDrag(const Vec3& v, double rho);
+    Vec3 computeLift(const Vec3& v, const Vec3& right, double rho);
+    Vec3 computeWeight(double m) ;
 
 public:
     // Constructeur

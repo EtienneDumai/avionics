@@ -10,11 +10,13 @@ private:
 
 public:
     Vec3(double newX, double newY, double newZ);
-    Vec3(const Vec3& newVec3);
+    Vec3(const Vec3& newVec3)=default;
     Vec3();
     ~Vec3();
     Vec3 operator+(const Vec3& v) const;
     Vec3 operator-(const Vec3& v) const;
+    Vec3& operator+=(const Vec3& v);   // _x += v._x; ...
+    Vec3 operator-() const;
     Vec3 operator+(double k) const;
     Vec3& operator+=(const double k);
     Vec3 operator-(double k) const;
