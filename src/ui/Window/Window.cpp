@@ -59,7 +59,7 @@ void Window::run()
         tabVal.push_back({"GSPD : " + std::to_string(static_cast<int>(this->_airplane->getGroundSpeed())) + " m/s",green});
         tabVal.push_back({"HEAD : " + std::to_string(static_cast<int>(this->_airplane->getHeading())) + " °", green});
         tabVal.push_back({"ALT : " + std::to_string(static_cast<int>(this->_airplane->getAltitude())) + " m", green});
-        for (int i = 0; i <= static_cast<int>(this->_airplane->getEnginesCount()); i++)
+        for (int i = 0; i < static_cast<int>(this->_airplane->getEnginesCount()); i++)
         {
             if (this->_airplane->getEngineRPM(i)<=100)
             {
