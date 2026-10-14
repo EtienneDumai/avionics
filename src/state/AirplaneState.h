@@ -17,8 +17,7 @@ private:
     double _xPos;         // m
     double _yPos;         // m
     double _airSpeed;     // m/s  (IAS — corrigé par la densité atmosphérique)
-    double _groundSpeed;  // m/s
-    double _verticalSpeed;// m/s
+    Vec3 _velocity;
     double _AOA;          // °
     Quaternion _orientation;
     int _engineCount;
@@ -30,8 +29,7 @@ private:
     std::mutex mutexAirplaneState;
 
 public:
-    AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
-                    double verticalSpeed, double AOA, Quaternion orientation, int engineCount,
+    AirplaneState(double altitude, double xPos, double yPos, double airSpeed, Vec3 velocity, double AOA, Quaternion orientation, int engineCount,
                     EngineConfig newEngineConfig, int newMasse, double newDragCoef,  double newLiftCoef, double newSurface);
     AirplaneState(AirplaneState* airplane);
     ~AirplaneState();
@@ -41,8 +39,10 @@ public:
     double getAirSpeed();
     double getGroundSpeed();
     double getVerticalSpeed();
+    Vec3 getVelocity();
     double getAOA();
     Vec3 getForward();
+    Vec3 getRight();
     Quaternion getOrientation();
     double getHeading();
     double getEngineRPM(int index);
@@ -55,10 +55,9 @@ public:
     void setAltitude(double newAltitude);
     void setXPos(double newXPos);
     void setYPos(double newYPos);
-    void setVerticalSpeed(double newVerticalSpeed);
-    void setGroundSpeed(double newGroundSpeed);
+    void setVelocity(Vec3 newVelocity);
     void setAOA(double newAOA);
     void computeIAS(double groundSpeed);
-    void computeAOA(Vec3 forwardVec, Vec3 velocityVec);
+    void computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right);
 };
 #endif

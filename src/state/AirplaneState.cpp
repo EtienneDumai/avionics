@@ -3,16 +3,14 @@
 #include <cmath>
 #include <mutex>
 
-AirplaneState::AirplaneState(double altitude, double xPos, double yPos, double airSpeed, double groundSpeed,
-                             double verticalSpeed, double AOA, Quaternion orientation, int engineCount,
+AirplaneState::AirplaneState(double altitude, double xPos, double yPos, double airSpeed, Vec3 velocity, double AOA, Quaternion orientation, int engineCount,
                              EngineConfig newEngineConfig, int newMasse, double newDragCoef, double newLiftCoef,
                              double newSurface)
     : _altitude(altitude),
       _xPos(xPos),
       _yPos(yPos),
       _airSpeed(airSpeed),
-      _groundSpeed(groundSpeed),
-      _verticalSpeed(verticalSpeed),
+      _velocity(velocity),
       _AOA(AOA),
       _orientation(orientation),
       _engineCount(engineCount),
@@ -33,9 +31,8 @@ AirplaneState::AirplaneState(AirplaneState* airplane)
     this->_airSpeed = airplane->getAirSpeed();
     this->_altitude = airplane->getAltitude();
     this->_AOA = airplane->getAOA();
-    this->_groundSpeed = airplane->getGroundSpeed();
+    this->_velocity = airplane->getVelocity();
     this->_orientation = airplane->getOrientation();
-    this->_verticalSpeed = airplane->getVerticalSpeed();
     this->_xPos = airplane->getXPos();
     this->_yPos = airplane->getYPos();
     this->_masse = airplane->getMasse();
@@ -74,16 +71,9 @@ double AirplaneState::getAirSpeed()
     return this->_airSpeed;
 }
 
-double AirplaneState::getGroundSpeed()
-{
+Vec3 AirplaneState::getVelocity(){
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
-    return this->_groundSpeed;
-}
-
-double AirplaneState::getVerticalSpeed()
-{
-    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
-    return this->_verticalSpeed;
+    return this->_velocity;
 }
 
 double AirplaneState::getAOA()
@@ -96,6 +86,12 @@ Vec3 AirplaneState::getForward()
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
     return this->_orientation.rotate(Vec3(0, 1, 0));
+}
+
+Vec3 AirplaneState::getRight()
+{
+    std::lock_guard<std::mutex> lock(mutexAirplaneState);
+    return _orientation.rotate(Vec3(1, 0, 0));   // x × y = z → (right, forward, up) direct
 }
 
 Quaternion AirplaneState::getOrientation()
@@ -180,16 +176,10 @@ void AirplaneState::setYPos(double newYPos)
     this->_yPos = newYPos;
 }
 
-void AirplaneState::setGroundSpeed(double newGroundSpeed)
+void AirplaneState::setVelocity(Vec3 newVelocity)
 {
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
-    this->_groundSpeed = newGroundSpeed;
-}
-
-void AirplaneState::setVerticalSpeed(double newVerticalSpeed)
-{
-    std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
-    this->_verticalSpeed = newVerticalSpeed;
+    this->_velocity = newVelocity;
 }
 void AirplaneState::setAOA(double newAOA){
     std::lock_guard<std::mutex> lock(this->mutexAirplaneState);
@@ -199,12 +189,20 @@ void AirplaneState::computeIAS(double groundSpeed)
 {
     this->_airSpeed = groundSpeed * pow((1 - 0.0065 * this->_altitude / 288.15), 2.128);
 }
-void AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec){
-    Vec3 fVec = forwardVec.normalize();
-    Vec3 vVec = velocityVec.normalize();
-    double angle = std::acos(fVec.dot(vVec))*180/M_PI;
-    if(fVec.getZ() < vVec.getZ()){
-        angle = -angle;
-    }
+void AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right)
+{
+    Vec3 f = forwardVec.normalize();
+    Vec3 v = velocityVec.normalize();
+    // sin(angle) signé par l'axe latéral, cos(angle) par le produit scalaire
+    double angle = std::atan2(v.cross(f).dot(right), v.dot(f)) * 180.0 / M_PI;
     this->setAOA(angle);
+}
+double AirplaneState::getGroundSpeed()
+{
+    Vec3 v = getVelocity();
+    return std::sqrt(v.getX() * v.getX() + v.getY() * v.getY());
+}
+double AirplaneState::getVerticalSpeed()
+{
+    return getVelocity().getZ();
 }

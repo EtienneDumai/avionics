@@ -10,16 +10,26 @@ private:
 
 public:
     Vec3(double newX, double newY, double newZ);
-    Vec3(const Vec3& newVec3);
+    Vec3(const Vec3& newVec3)=default;
     Vec3();
     ~Vec3();
+    Vec3 operator+(const Vec3& v) const;
+    Vec3 operator-(const Vec3& v) const;
+    Vec3& operator+=(const Vec3& v);   // _x += v._x; ...
+    Vec3 operator-() const;
+    Vec3 operator+(double k) const;
+    Vec3& operator+=(const double k);
+    Vec3 operator-(double k) const;
+    Vec3 operator*(double k) const;
+    Vec3 operator/(double k) const;
     double getX() const;
     double getY() const;
     double getZ() const;
     void setX(double newX);
     void setY(double newY);
     void setZ(double newZ);
-    Vec3 normalize();
+    Vec3 normalize() const;
+    double length() const;
     double dot(const Vec3& v) const;
     Vec3 cross(const Vec3& v) const;
 };

@@ -5,12 +5,7 @@ Vec3::Vec3(double newX, double newY, double newZ)
     this->_y = newY;
     this->_z = newZ;
 }
-Vec3::Vec3(const Vec3& newVec3)
-{
-    this->_x = newVec3.getX();
-    this->_y = newVec3.getY();
-    this->_z = newVec3.getZ();
-}
+
 Vec3::Vec3()
 {
     // Vecteur nul
@@ -19,6 +14,49 @@ Vec3::Vec3()
     this->_z = 0.0;
 }
 Vec3::~Vec3() {}
+Vec3 Vec3::operator+(const Vec3& v) const
+{
+    return Vec3(this->_x + v.getX(), this->_y + v.getY(), this->_z + v.getZ());
+}
+Vec3& Vec3::operator+=(const Vec3& v){
+
+    this->_x += v.getX();
+    this->_y += v.getY();
+    this->_z += v.getZ();
+    return *this;
+}
+Vec3 Vec3::operator-(const Vec3& v) const
+{
+    return Vec3(this->_x - v.getX(), this->_y - v.getY(), this->_z - v.getZ());
+}
+Vec3 Vec3::operator+(double k) const
+{
+    return Vec3(this->_x + k, this->_y + k, this->_z + k);
+}
+Vec3 Vec3::operator-(double k)const
+{
+    return Vec3(this->_x - k, this->_y - k, this->_z - k);
+
+}
+Vec3 Vec3::operator*(double k)const
+{
+    return Vec3(this->_x * k, this->_y * k, this->_z * k);
+}
+Vec3& Vec3::operator+=(const double k){
+    this->_x += k;
+    this->_y += k;
+    this->_z += k;
+    return *this;
+}
+Vec3 Vec3::operator-()const{
+    return Vec3(-_x, -_y, -_z);
+}
+Vec3 Vec3::operator/(double k) const {
+    if (k == 0) {
+        return Vec3(0.0, 0.0, 0.0);
+    }
+    return Vec3(this->_x / k, this->_y / k, this->_z / k);
+}
 double Vec3::getX() const { return this->_x; }
 double Vec3::getY() const { return this->_y; }
 double Vec3::getZ() const { return this->_z; }
@@ -26,14 +64,17 @@ void Vec3::setX(double newX) { this->_x = newX; }
 void Vec3::setY(double newY) { this->_y = newY; }
 void Vec3::setZ(double newZ) { this->_z = newZ; }
 
-Vec3 Vec3::normalize()
+Vec3 Vec3::normalize() const
 {
-    double vectLength = std::sqrt(std::pow(this->getX(), 2) + std::pow(this->getY(), 2) + std::pow(this->getZ(), 2));
+    double vectLength = this->length();
     if (vectLength < 1e-9)
     {
         return Vec3(0.0, 0.0, 0.0);
     }
     return Vec3(this->getX() / vectLength, this->getY() / vectLength, this->getZ() / vectLength);
+}
+double Vec3::length() const {
+    return std::sqrt(std::pow(this->getX(), 2) + std::pow(this->getY(), 2) + std::pow(this->getZ(), 2));
 }
 double Vec3::dot(const Vec3& v) const
 {

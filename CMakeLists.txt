@@ -33,6 +33,7 @@ if(WIN32)
     # /W4 est l'équivalent MSVC le plus proche.
     if(MSVC)
         target_compile_options(avionics PRIVATE /W4)
+        target_compile_definitions(avionics PRIVATE _USE_MATH_DEFINES)
     else()
         target_compile_options(avionics PRIVATE -Wall -Wextra)
     endif()
