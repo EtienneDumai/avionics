@@ -31,12 +31,14 @@ TODO - Prochaines etapes physique
      genre ~0.03) n'a plus le bon ordre de grandeur pour ce role, a recalibrer en meme temps
      que les autres valeurs bidon de main.cpp (masse/surface, voir etape 2/README)
 
-3bis. Ameliorations futures identifiees, pas urgentes
-   - AOA : remplacer la comparaison des Z (approximation) par un vrai angle signe via
-     atan2((a x b)·n, a·b) avec un axe lateral de reference n (necessite un getRight() sur
-     AirplaneState, ou cross(forward, up)) - plus robuste si le roulis est modelise un jour
-   - Decorreler l'AOA/Cl d'un roulis nul : actuellement la simplification suppose implicitement
-     qu'on reste dans un plan vertical (pas de sideslip/angle beta modelise)
+3bis. Ameliorations futures identifiees
+   - [FAIT] AOA : la comparaison des Z (approximation) a ete remplacee par un vrai angle signe
+     via atan2((v x f)·right, v·f), avec AirplaneState::getRight() (rotate((1,0,0)) sur
+     _orientation) comme axe lateral de reference. Voir AirplaneState::computeAOA() (3 Vec3
+     en parametre desormais) et docs/simulator.md, section "Angle d'attaque (AOA)".
+   - Reste a faire : decorreler l'AOA/Cl d'un roulis/sideslip reel. `right` utilise est l'axe
+     laterale du corps de l'avion, pas un axe derive de la vitesse - un angle beta de
+     derapage distinct de l'AOA n'est toujours pas modelise.
 
 4. [FAIT] Orientation 3D (quaternion)
    - Quaternion/Vec3 complets, branches dans AirplaneState : _heading (double) remplace
@@ -48,10 +50,21 @@ TODO - Prochaines etapes physique
    - Bug rencontre et corrige : Quaternion avait un constructeur de copie custom sans
      operator= associe (regle des trois, -Werror=deprecated-copy) -> operator= ajoute
 
-5. Forces vectorielles
-   - Actuellement tout est scalaire (F_DRAG, F_NETTE le long d'un seul axe)
-   - Passer a des forces en Vec3 (poussee, trainee, portance, gravite) sommees puis divisees par la masse
-   - Integrer acceleration -> vitesse -> position en Vec3 plutot qu'en x/y/altitude separes
+5. [FAIT] Forces vectorielles
+   - AirplaneState::_velocity (Vec3) remplace les anciens _groundSpeed/_verticalSpeed scalaires
+     (getGroundSpeed()/getVerticalSpeed() existent toujours pour Window/Display, mais sont
+     desormais derivees de _velocity plutot que stockees - plus de setters scalaires separes)
+   - Simulator a 4 methodes privees qui calculent chacune une force en Vec3 : computeThrust()
+     (alignee sur forward), computeDrag() (opposee a v), computeLift() (perpendiculaire a
+     right^v, Cl toujours derive de l'AOA), computeWeight() (verticale, -m*g)
+   - Resultante = somme des 4 forces ; integration Euler classique : a = F/m, puis
+     velocity += a * dt (operator+=(Vec3) et operator-() unaire ajoutes a Vec3 pour ca)
+   - Position/altitude integrees directement depuis les composantes de _velocity - getForward()
+     ne pilote plus la position, seulement la direction de la poussee et le referentiel de l'AOA
+   - Cl n'est plus force purement vertical : right^v incline naturellement la portance avec
+     l'assiette/le roulis, sans calcul supplementaire
+   - Voir docs/simulator.md ("Forces vectorielles") et docs/math.md ("Accumulation (+=) et
+     oppose") pour le detail
 
 6. Dynamique angulaire
    - Pas de vitesse angulaire, pas de moment d'inertie, pas de couple

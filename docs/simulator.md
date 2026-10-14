@@ -26,73 +26,61 @@ Cette fonction est appelée à chaque tick, aussi bien pour la traînée que pou
 
 ## Vitesse indiquée (IAS)
 
-`AirplaneState::computeIAS(groundSpeed)` dérive la vitesse air (`_airSpeed`) à partir de la vitesse sol et de l'altitude :
+`AirplaneState::computeIAS(speed)` dérive la vitesse air (`_airSpeed`) à partir d'une vitesse scalaire et de l'altitude :
 
-$$v_{air} = v_{sol} \times \left(1 - \frac{0{,}0065 \, h}{288{,}15}\right)^{2{,}128}$$
+$$v_{air} = v \times \left(1 - \frac{0{,}0065 \, h}{288{,}15}\right)^{2{,}128}$$
 
-C'est une approximation du même effet de raréfaction de l'air que pour `ρ`, mais avec un exposant différent (lié à la relation entre densité et vitesse indiquée plutôt que densité et altitude seule). Plus l'avion monte, plus `airSpeed` diminue par rapport à `groundSpeed` à poussée égale.
+C'est une approximation du même effet de raréfaction de l'air que pour `ρ`, mais avec un exposant différent (lié à la relation entre densité et vitesse indiquée plutôt que densité et altitude seule).
 
----
-
-## Vitesse sol — poussée et traînée
-
-`Simulator::computeGroundSpeed()` calcule la force de traînée aérodynamique :
-
-$$F_{drag} = \frac{1}{2} \, \rho \, v_{sol}^2 \, C_x \, S$$
-
-où `Cx` (`_dragCoef`) est le coefficient de traînée (sans dimension) et `S` (`_surface`) la surface alaire (m²).
-
-La force nette longitudinale est :
-
-$$F_{nette} = F_{\text{poussée}} - F_{drag}$$
-
-`F_poussée` vient de `AirplaneState::getTotalThrust()`, somme de la poussée de chaque moteur (voir plus bas).
-
-Intégration explicite (Euler) :
-
-$$a = \frac{F_{nette}}{m} \qquad v_{sol} \mathrel{+}= a \times \Delta t$$
-
-avec `m` la masse (`_masse`) et `Δt = _timeScale`.
+**Depuis le passage aux forces vectorielles**, `simLoop()` appelle `computeIAS(velocity.length())` — la norme **3D complète** du vecteur vitesse, et non plus seulement sa composante horizontale (`v_sol`). En montée/descente marquée, l'IAS inclut donc désormais la composante verticale de la vitesse, pas seulement le déplacement horizontal.
 
 ---
 
-## Vitesse verticale — portance et poids
+## Forces vectorielles
 
-`Simulator::computeVerticalSpeed()` calcule la portance :
+Le calcul de forces est entièrement en `Vec3` : plus de vitesse sol / vitesse verticale séparées, un seul `AirplaneState::_velocity` (`Vec3`) intégré à partir d'une **résultante** de quatre forces, elles-mêmes en `Vec3`. Chacune est calculée par une méthode privée dédiée de `Simulator` :
 
-$$F_{lift} = \frac{1}{2} \, \rho \, v_{air}^2 \, C_l \, S$$
+**Poussée** — `computeThrust(forward)` : alignée sur le vecteur avant de l'avion.
 
-où `Cl` (`_liftCoef`) est le coefficient de portance (sans dimension). Contrairement à la traînée, la portance utilise `v_air` (vitesse air) et non `v_sol` : la portance résulte de l'écoulement de l'air sur la voilure, donc de la vitesse relative à l'air, pas au sol.
+$$\vec{F}_{\text{poussée}} = T_{\text{total}} \cdot \hat{forward}$$
 
-Le poids :
+`T_total` vient de `AirplaneState::getTotalThrust()`, somme de la poussée de chaque moteur (voir plus bas).
 
-$$P = m \, g \qquad (g = 9{,}81 \ m/s^2)$$
+**Traînée** — `computeDrag(v, ρ)` : opposée à la vitesse réelle (plus seulement à sa composante horizontale).
 
-Force nette verticale et intégration, même schéma que pour la vitesse sol :
+$$\vec{F}_{drag} = -\frac{1}{2} \, \rho \, \|\vec v\|^2 \, C_x \, S \cdot \hat{v}$$
 
-$$F_{vert} = F_{lift} - P \qquad a_{vert} = \frac{F_{vert}}{m} \qquad v_{vert} \mathrel{+}= a_{vert} \times \Delta t$$
+où `Cx` (`_dragCoef`) et `S` (`_surface`) sont inchangés. Si `‖v‖` est quasi nulle (`< 1e-6`), on retourne le vecteur nul plutôt que de normaliser un vecteur quasi nul (même logique de garde que `Vec3::normalize()`, voir `docs/math.md`).
 
-`Cl` est désormais dérivé linéairement de l'angle d'attaque plutôt que d'être une constante fixe :
+**Portance** — `computeLift(v, right, ρ)` : perpendiculaire à la fois à la vitesse et à l'axe latéral de l'avion.
 
-$$C_l = C_{l,\alpha} \times AOA$$
+$$\hat{dir}_{lift} = \widehat{\vec{right} \wedge \vec v} \qquad \vec{F}_{lift} = \frac{1}{2} \, \rho \, \|\vec v\|^2 \, C_l \, S \cdot \hat{dir}_{lift}$$
 
-où `Cl,α` (`_liftCoef`) est maintenant une **pente** (Cl par degré d'AOA), et non plus un `Cl` constant — attention à la calibration de sa valeur dans `main.cpp`, qui date de l'époque où `_liftCoef` jouait le rôle d'un `Cl` fixe.
+`Cl` reste dérivé linéairement de l'angle d'attaque, `Cl = _liftCoef × AOA` (voir section AOA ci-dessous) — `_liftCoef` est une **pente** (Cl par degré), pas un `Cl` constant.
 
-**Simplification actuelle** : la portance est toujours traitée comme purement verticale (pas de décomposition selon l'assiette/le roulis) — seule la *magnitude* du `Cl` varie avec l'AOA, la direction de la portance reste verticale.
+**Différence clé avec l'ancien modèle** : la portance n'est plus forcée à être purement verticale. `right ∧ v` donne un vecteur perpendiculaire à l'axe latéral de l'avion et à la vitesse réelle — en vol normal (roulis nul, peu de sideslip) ce vecteur est proche de la verticale, mais il s'incline naturellement avec l'assiette/le roulis de l'avion, sans calcul supplémentaire.
+
+**Poids** — `computeWeight(m)` : constant, vertical, vers le bas.
+
+$$\vec{F}_{poids} = (0,\ 0,\ -m g) \qquad (g = 9{,}81\ m/s^2)$$
+
+### Intégration
+
+$$\vec F = \vec F_{\text{poussée}} + \vec F_{drag} + \vec F_{lift} + \vec F_{poids} \qquad \vec a = \frac{\vec F}{m} \qquad \vec v \mathrel{+}= \vec a \, \Delta t$$
+
+avec `m` la masse (`_masse`) et `Δt = _timeScale`. C'est un Euler explicite classique, mais fait une seule fois sur le vecteur complet plutôt que séparément sur deux axes — voir `docs/math.md`, section « Accumulation (`+=`) et opposé » pour l'opérateur qui rend `velocity += force / m * dt` possible directement.
+
+`AirplaneState::getGroundSpeed()` et `getVerticalSpeed()` existent toujours (pour ne pas casser `Window`/`Display`), mais sont désormais **dérivées** de `_velocity` plutôt que stockées : `getGroundSpeed()` renvoie `√(vx² + vy²)` (norme horizontale), `getVerticalSpeed()` renvoie `vz` directement. Il n'y a plus de setters correspondants — seul `setVelocity(Vec3)` existe.
 
 ### Angle d'attaque (AOA)
 
-`AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec)` calcule `_AOA` (en degrés) :
+`AirplaneState::computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right)` calcule `_AOA` (en degrés) avec un angle signé complet, via `atan2` plutôt que la simplification `acos` + comparaison de composantes utilisée auparavant :
 
-1. Les deux vecteurs sont normalisés (`Vec3::normalize()`).
-2. Magnitude de l'angle : `acos(dot(forward, velocity)) × 180/π` (les vecteurs étant unitaires, le produit scalaire est directement `cos θ`).
-3. Signe : comparaison des composantes `Z` des deux vecteurs normalisés — si le nez (`forward`) pointe plus haut que la trajectoire réelle (`velocity`), l'AOA est positif, sinon négatif. C'est une **simplification** (pas de vrai axe latéral de référence, pas de roulis modélisé) — une version plus rigoureuse utiliserait `atan2((forward × velocity)·n, forward · velocity)` avec un axe latéral `n` dédié.
+$$AOA = \operatorname{atan2}\big((\hat v \wedge \hat f) \cdot \hat{right},\ \ \hat v \cdot \hat f\big) \times \frac{180}{\pi}$$
 
-Le vecteur vitesse est reconstruit dans `Simulator::simLoop()` à partir des mêmes morceaux que l'intégration de position :
+où `f = forwardVec.normalize()` et `v = velocityVec.normalize()`. Le produit scalaire donne le cosinus de l'angle, le produit vectoriel projeté sur `right` en donne le sinus signé — `atan2` combine les deux en un angle signé sur 360°, sans les discontinuités/ambiguïtés de signe de l'ancienne comparaison de composantes `Z`. C'est la version « plus rigoureuse » qui était envisagée comme amélioration future (voir `todo.txt`, étape 3bis) — elle nécessitait `AirplaneState::getRight()`, qui est désormais disponible (`_orientation.rotate((1,0,0))`).
 
-$$velocity = (forward_x \times v_{sol},\ \ forward_y \times v_{sol},\ \ v_{vert})$$
-
-**Important sur l'ordre d'appel** : `computeAOA()` est appelée **avant** `computeVerticalSpeed()` dans `simLoop()`, pour que le `Cl` utilisé dans le calcul de la portance reflète l'AOA du tick courant plutôt que celle du tick précédent. Ce choix introduit malgré tout un léger décalage : `velocity` utilise le `_verticalSpeed` du tick précédent (pas encore recalculé à ce stade du tick) — un compromis Euler du même type que les autres approximations de la boucle.
+**Limite qui subsiste** : `right` est l'axe latéral *de l'avion* (corps), pas un axe dérivé de la vitesse elle-même — en cas de sideslip important (vitesse qui dérive latéralement par rapport au nez), cet angle reste une approximation de l'AOA « pur tangage », pas une décomposition complète AOA/sideslip (angle β).
 
 ---
 
@@ -106,23 +94,19 @@ où `T_max` (`_maxThrust`) est la poussée maximale nominale (N). Le facteur `1,
 
 Un moteur à l'arrêt (`_state = false`) produit une poussée nulle, quel que soit son RPM.
 
-> **Limitation actuelle** : rien n'appelle `Engine::setState()` ni `Engine::updateRPM()` dans `simLoop()`. Les moteurs sont créés à l'arrêt (`state = false`, RPM = 0) et le restent — `getTotalThrust()` renvoie donc toujours 0 tant qu'aucune commande pilote n'est branchée. La vitesse sol évolue uniquement sous l'effet de la traînée (décélération) dans l'état actuel du projet.
+> **Limitation actuelle** : rien n'appelle `Engine::setState()` ni `Engine::updateRPM()` dans `simLoop()`. Les moteurs sont créés à l'arrêt (`state = false`, RPM = 0) et le restent — `getTotalThrust()` renvoie donc toujours 0 tant qu'aucune commande pilote n'est branchée. La vitesse évolue uniquement sous l'effet de la traînée et du poids (décélération, puis chute) dans l'état actuel du projet.
 
 ---
 
 ## Position
 
-Intégration de la position à partir du **vecteur avant** (`AirplaneState::getForward()`, dérivé de l'orientation `_orientation` en `Quaternion`) et de la vitesse sol :
+Intégration directe depuis les composantes du vecteur vitesse **après** mise à jour par les forces (voir section précédente) :
 
-$$x \mathrel{+}= forward_x \, v_{sol} \, \Delta t \qquad y \mathrel{+}= forward_y \, v_{sol} \, \Delta t$$
+$$x \mathrel{+}= v_x \, \Delta t \qquad y \mathrel{+}= v_y \, \Delta t \qquad h \mathrel{+}= v_z \, \Delta t$$
 
-`getForward()` applique la rotation `_orientation` au vecteur de référence `(0,1,0)` (voir `docs/math.md`, section « Rotation d'un vecteur »). Plus de conversion degrés/radians ni de `cos`/`sin` explicites dans `simLoop()` — le vecteur avant est calculé une fois par tick et réutilisé pour `xPos` et `yPos`.
+**Changement important par rapport à l'ancien modèle** : la position ne passe plus par le vecteur avant (`getForward()`) — c'est `_velocity` qui la pilote directement, puisque c'est elle qui est désormais intégrée depuis les forces. `getForward()` (et `getRight()`) ne servent plus qu'à *orienter les forces elles-mêmes* (direction de la poussée, référentiel de l'AOA et de la portance) — pas à intégrer la position. Voir `docs/math.md`, section « Flux d'utilisation », pour ce changement de rôle.
 
-`AirplaneState::getHeading()` reste disponible pour l'affichage (`Window`, `Display`) mais est désormais **dérivée** du vecteur avant : `atan2(forward.x, forward.y) × 180/π`, plutôt qu'un champ `_heading` stocké séparément. Voir `docs/math.md` (section « Convention d'axes ») pour le piège main droite / cap aéronautique à respecter quand on construira une orientation depuis un cap commandé.
-
-L'altitude s'intègre directement depuis la vitesse verticale :
-
-$$h \mathrel{+}= v_{vert} \times \Delta t$$
+`AirplaneState::getHeading()` reste disponible pour l'affichage (`Window`, `Display`) mais reste **dérivée** du vecteur avant : `atan2(forward.x, forward.y) × 180/π`, plutôt qu'un champ `_heading` stocké séparément. Voir `docs/math.md` (section « Convention d'axes ») pour le piège main droite / cap aéronautique à respecter quand on construira une orientation depuis un cap commandé.
 
 ---
 
@@ -130,15 +114,15 @@ $$h \mathrel{+}= v_{vert} \times \Delta t$$
 
 Ordre exact des opérations dans `Simulator::simLoop()`, à chaque itération (~toutes les 16 ms) :
 
-1. **`computeGroundSpeed()`** — traînée (fonction de `v_sol` courante) → nouvelle `v_sol`
-2. **`computeIAS(v_sol)`** — recalcule `v_air` à partir de la `v_sol` **fraîchement mise à jour** à l'étape 1
-3. **`computeAOA(forward, velocity)`** — angle d'attaque à partir du vecteur avant et du vecteur vitesse reconstruit (`v_sol` fraîchement mise à jour à l'étape 1, `v_vert` **encore celle du tick précédent**, pas mise à jour avant l'étape 4) → nouvelle `_AOA`
-4. **`computeVerticalSpeed()`** — portance (fonction de `v_air` mise à jour à l'étape 2 et `Cl` dérivé de `_AOA` mise à jour à l'étape 3) et poids → nouvelle `v_vert`
-5. **Position** : `yPos`, `xPos` mis à jour à partir du vecteur avant (`getForward()`, dérivé de `_orientation`) et `v_sol` (étape 1)
-6. **Altitude** : mise à jour à partir de `v_vert` (étape 4)
-7. `sleep(_tickTime)` avant le prochain tick
+1. **Lecture de l'état courant** : `forward`, `right` (orientation), `velocity` (vitesse du tick précédent), `rho` (densité de l'air à l'altitude courante), `m` (masse) — tout est lu une fois en local au début du tick.
+2. **`computeAOA(forward, velocity, right)`** — angle d'attaque, à partir de la vitesse **du tick précédent** (pas encore mise à jour ce tick) → nouvelle `_AOA`.
+3. **`computeIAS(velocity.length())`** — vitesse air indiquée, à partir de la norme de cette même vitesse.
+4. **Forces** : `computeThrust(forward) + computeDrag(velocity, rho) + computeLift(velocity, right, rho) + computeWeight(m)` → résultante `Vec3`. La portance utilise ici le `_AOA` **fraîchement recalculé à l'étape 2** (via `getLiftCoef() * getAOA()` dans `computeLift`).
+5. **Intégration de la vitesse** : `velocity += force / m * Δt` → nouvelle `_velocity`, écrite via `setVelocity()`.
+6. **Position et altitude** : `xPos`, `yPos`, `altitude` mis à jour directement depuis les composantes de la `velocity` **fraîchement intégrée** à l'étape 5.
+7. `sleep(_tickTime)` avant le prochain tick.
 
-L'ordre est important : chaque grandeur dérivée (IAS, portance, position) utilise la valeur **déjà mise à jour** dans le même tick, pas celle du tick précédent — la boucle applique donc une intégration de type Euler semi-implicite plutôt qu'explicite pure.
+L'ordre reste un Euler **semi-implicite** : l'AOA et l'IAS du tick utilisent encore la vitesse du tick précédent (étapes 2-3), mais la portance (étape 4) profite déjà de l'AOA recalculé la même itération, et la position (étape 6) utilise la vitesse déjà mise à jour (étape 5) — même logique de « chaque grandeur réutilise ce qui vient d'être recalculé dans le même tick » que l'ancien modèle, mais sur un seul vecteur de force plutôt que deux calculs scalaires séparés.
 
 ---
 
@@ -147,6 +131,7 @@ L'ordre est important : chaque grandeur dérivée (IAS, portance, position) util
 Le schéma utilisé est un **Euler explicite/semi-implicite simple** à pas fixe (`Δt = 16 ms`). Suffisant pour l'instant, mais :
 
 - Pas de gestion de sol/plancher : sans portance suffisante, l'altitude peut devenir négative (l'avion « tombe » indéfiniment).
-- Toutes les forces sont scalaires, appliquées sur un seul axe à la fois (`v_sol` longitudinal, `v_vert` vertical) — pas encore de forces vectorielles 3D combinées. L'orientation (`_orientation`, `Quaternion`) est branchée dans `AirplaneState` et pilote la position, mais la portance/traînée restent scalaires ; voir `docs/math.md` et `todo.txt` étape 5.
-- L'AOA est calculée avec une simplification de signe (comparaison des composantes `Z`, pas de vrai axe latéral) — voir section « Angle d'attaque (AOA) » ci-dessus et `todo.txt` étape 3bis pour la version plus rigoureuse envisagée (`atan2` + produit vectoriel).
+- La poussée reste toujours alignée sur le vecteur avant (pas de poussée vectorisée/orientable).
+- `right` (référentiel latéral de l'AOA et de la direction de portance) est l'axe latéral *du corps* de l'avion, pas un axe recalculé à partir de la vitesse réelle — un sideslip important (vitesse qui dérive latéralement par rapport au nez) reste mal représenté ; il n'y a pas de véritable angle β de dérapage modélisé séparément de l'AOA.
+- Pas de dynamique angulaire (vitesse de rotation, moment d'inertie, couple) — l'orientation (`_orientation`) ne change que si on la fixe explicitement, rien ne la fait encore évoluer tick après tick. Voir `todo.txt`, étape 6.
 - Si les forces deviennent grandes (par ex. `Cl` mal calibré), un pas de temps fixe en Euler simple peut accumuler de l'erreur plus vite qu'un schéma d'ordre supérieur (RK4) — à surveiller si des instabilités apparaissent.

@@ -33,6 +33,19 @@ Contrairement au produit scalaire, le résultat est un **vecteur**, perpendicula
 
 **Attention : le produit vectoriel n'est pas commutatif.** `u ∧ v = -(v ∧ u)` — l'ordre des opérandes inverse le sens du résultat.
 
+### Accumulation (`+=`) et opposé (unaire `-`)
+
+En plus des opérateurs binaires (`+`, `-`, `*`, `/`), `Vec3` expose :
+
+- `Vec3& operator+=(const Vec3& v)` — accumulation en place, composante par composante (`_x += v.getX()`, etc.), et retourne une référence sur `*this` pour permettre le chaînage.
+- `Vec3 operator-() const` — l'opposé du vecteur (`(-x, -y, -z)`), sans modifier l'original.
+
+Ces deux opérateurs sont ce qui permet d'écrire l'intégration d'Euler d'une accélération vers une vitesse sans passer par les composantes une par une :
+
+$$v \mathrel{+}= a \, \Delta t$$
+
+s'écrit directement `velocity += acceleration * dt` — voir `docs/simulator.md`, section « Forces vectorielles », qui est le principal consommateur de cet opérateur.
+
 ---
 
 ## Quaternion
@@ -126,11 +139,13 @@ Les quaternions représentent une rotation comme un **axe + un angle** et compos
 
 ```
 orientation (Quaternion)
-    → vecteur avant dans le monde (Vec3)
-    → vitesse_monde = airspeed × vecteur_avant
+    → vecteur avant dans le monde (Vec3), via rotate((0,1,0))   — direction de la poussée, référence pour l'AOA
+    → vecteur droit dans le monde (Vec3), via rotate((1,0,0))   — référence latérale pour l'AOA, direction de portance
 ```
 
-**Implémenté** : `AirplaneState` stocke désormais `_orientation` (`Quaternion`, remplace l'ancien `_heading` scalaire). `AirplaneState::getForward()` applique `_orientation.rotate(Vec3(0,1,0))`, et `Simulator::simLoop()` s'en sert directement pour intégrer `xPos`/`yPos` (plus de `cos`/`sin` d'un angle). `getHeading()` existe toujours pour l'affichage (`Window`/`Display`), mais elle est désormais **dérivée** : `atan2(forward.x, forward.y)` sur le vecteur avant plutôt qu'un champ stocké.
+**Implémenté** : `AirplaneState` stocke `_orientation` (`Quaternion`, remplace l'ancien `_heading` scalaire). `AirplaneState::getForward()` et `AirplaneState::getRight()` appliquent `_orientation.rotate(...)` respectivement à `(0,1,0)` et `(1,0,0)`. `getHeading()` existe toujours pour l'affichage (`Window`/`Display`), mais elle est **dérivée** : `atan2(forward.x, forward.y)` sur le vecteur avant plutôt qu'un champ stocké.
+
+**Important — ceci ne pilote plus directement la vitesse.** Avant les forces vectorielles, la vitesse était une simple projection du cap (`vitesse_monde = airspeed × vecteur_avant`) : l'avion allait forcément là où pointait son nez. Ce n'est plus le cas : `_velocity` (`Vec3`) est désormais **intégrée indépendamment** à partir de la somme des forces (poussée, traînée, portance, poids — voir `docs/simulator.md`, section « Forces vectorielles »), et `getForward()`/`getRight()` ne servent plus qu'à *orienter* ces forces (direction de la poussée, référentiel de l'AOA et de la portance), pas à fixer la vitesse. L'écart entre `forward` et la direction réelle de `_velocity`, c'est précisément l'angle d'attaque (`_AOA`).
 
 Pour appliquer du pitch/yaw/roll à chaque frame (**pas encore fait** — nécessite une commande pilote et une vitesse angulaire, voir `todo.txt` étape 6) :
 
