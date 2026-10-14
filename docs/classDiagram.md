@@ -23,7 +23,7 @@ classDiagram
 - `Simulator`, `Window` et `Display` détiennent chacun un **pointeur** (non-propriétaire) vers un unique `AirplaneState` partagé — l'état central protégé par mutex, lu/écrit depuis plusieurs threads.
 - `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée) et son `Quaternion` d'orientation (`_orientation`, remplace l'ancien `_heading` scalaire).
 - `EngineConfig` et `DataColor` sont de simples structs (pas de logique), utilisés respectivement pour construire les moteurs et pour transporter texte+couleur à afficher dans `Window`.
-- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation/position (`getForward()`, `getOrientation()`) — voir `docs/math.md`, section « Flux d'utilisation ». Pas encore utilisés pour les forces (traînée/portance restent scalaires).
+- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation (`getForward()`, `getRight()`, `getOrientation()`) — voir `docs/math.md`, section « Flux d'utilisation ». Les forces (poussée, traînée, portance, poids) sont désormais calculées en `Vec3` dans `Simulator` et intègrent directement `AirplaneState::_velocity` — voir `docs/simulator.md`, section « Forces vectorielles ».
 
 ---
 
@@ -36,8 +36,7 @@ classDiagram
         -double _xPos
         -double _yPos
         -double _airSpeed
-        -double _groundSpeed
-        -double _verticalSpeed
+        -Vec3 _velocity
         -double _AOA
         -Quaternion _orientation
         -int _engineCount
@@ -47,7 +46,7 @@ classDiagram
         -double _surface
         -vector~unique_ptr~Engine~~ _engines
         -mutex mutexAirplaneState
-        +AirplaneState(altitude, xPos, yPos, airSpeed, groundSpeed, verticalSpeed, AOA, orientation, engineCount, EngineConfig, masse, dragCoef, liftCoef, surface)
+        +AirplaneState(altitude, xPos, yPos, airSpeed, velocity, AOA, orientation, engineCount, EngineConfig, masse, dragCoef, liftCoef, surface)
         +AirplaneState(AirplaneState* airplane)
         +getAltitude() double
         +getXPos() double
@@ -55,8 +54,10 @@ classDiagram
         +getAirSpeed() double
         +getGroundSpeed() double
         +getVerticalSpeed() double
+        +getVelocity() Vec3
         +getAOA() double
         +getForward() Vec3
+        +getRight() Vec3
         +getOrientation() Quaternion
         +getHeading() double
         +getEngineRPM(int index) double
@@ -69,9 +70,9 @@ classDiagram
         +setAltitude(double) void
         +setXPos(double) void
         +setYPos(double) void
-        +setVerticalSpeed(double) void
-        +setGroundSpeed(double) void
-        +computeIAS(double groundSpeed) void
+        +setVelocity(Vec3) void
+        +computeIAS(double speed) void
+        +computeAOA(Vec3 forwardVec, Vec3 velocityVec, Vec3 right) void
     }
 ```
 
@@ -123,9 +124,11 @@ classDiagram
         -int _tickTime$
         -double _g$
         -simLoop() void
-        -computeGroundSpeed() void
-        -computeVerticalSpeed() void
         -computeAirDensity(double altitude) double
+        -computeThrust(const Vec3& forward) Vec3
+        -computeDrag(const Vec3& v, double rho) Vec3
+        -computeLift(const Vec3& v, const Vec3& right, double rho) Vec3
+        -computeWeight(double m) Vec3
         +Simulator(AirplaneState* newAirplane)
         +getSimRunning() bool
         +getTickTime() int
@@ -233,4 +236,4 @@ classDiagram
 - `Simulator`, `Window` et `Display` détiennent chacun un **pointeur** (non-propriétaire) vers un unique `AirplaneState` partagé — c'est l'état central protégé par mutex, lu/écrit depuis plusieurs threads.
 - `AirplaneState` **possède** ses `Engine` (composition, via `std::unique_ptr` — durée de vie liée) et son `Quaternion` d'orientation (`_orientation`).
 - `EngineConfig` et `DataColor` sont de simples structs (pas de logique), utilisés respectivement pour construire les moteurs et pour transporter texte+couleur à afficher dans `Window`.
-- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation/position — voir `docs/math.md`, section « Flux d'utilisation ».
+- `Vec3`/`Quaternion` sont branchés dans `AirplaneState` pour l'orientation — voir `docs/math.md`, section « Flux d'utilisation ». Les forces (poussée, traînée, portance, poids), calculées en `Vec3` dans `Simulator`, intègrent directement `_velocity` — voir `docs/simulator.md`, section « Forces vectorielles ».
